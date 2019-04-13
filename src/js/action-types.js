@@ -1,0 +1,6 @@
+export const SIGNUP = 'SUGN_UP'
+export const LOGIN = 'LOGIN'
+export const SUGN_UP_SUCCESS = 'SUGN_UP_SUCCESS'
+export const LOGIN_SICESS = 'LOGIN_SICESS'
+export const SUGN_UP_FAILED = 'SUGN_UP_FAILED'
+export const LOGIN_FAILED = 'LOGIN_FAILED'
