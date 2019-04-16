@@ -42,8 +42,6 @@ func main() {
 		Domain: "http://localhost:9094",
 	})
 
-	manager.MapClientStorage(clientStore)
-
 	srv := server.NewServer(server.NewConfig(), manager)
 
 	//vsdfsadsadsdsd
@@ -69,8 +67,12 @@ func main() {
 	http.HandleFunc("/auth", authHandler)
 
 	http.HandleFunc("/registration", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+
+		}
+
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "%s", pages.Pages["registration.html"].Body)
+		fmt.Fprintf(w, "%s", "TEST")
 	})
 
 	http.HandleFunc("/button", func(w http.ResponseWriter, r *http.Request) {

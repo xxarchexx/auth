@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 class Form extends Component{
  render() {
     return (  
-<form class="form-horizontal" action='Registration' method="POST">
+<form class="form-horizontal" action='registration' method="POST">
   <fieldset>
     <div id="legend">
       <legend class="">Register</legend>
