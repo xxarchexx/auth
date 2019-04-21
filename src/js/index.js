@@ -1,16 +1,30 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './components/SignUpForm.jsx/index.js.js';
-import { createStore, applyMiddleware } from 'redux'; 
+import { render } from 'react-dom';
+import { Router, browserHistory } from 'react-router';
+import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
+import { createStore, applyMiddleware, compose } from 'redux';
+import rootReducer from './rootReducer';
+import setAuthorizationToken from './utils/setAuthorizationToken';
+import jwtDecode from 'jwt-decode';
+import { setCurrentUser } from './actions/authActions';
 
-import {Provider} from 'react-redux';
+import routes from './routes';
 
-import rootReducer from './reduser/index.js';
+const store = createStore(
+  rootReducer,
+  compose(
+    applyMiddleware(thunk),
+    window.devToolsExtension ? window.devToolsExtension() : f => f
+  )
+);
 
-const createStoreWithMiddleware = applyMiddleware()(createStore);
+if (localStorage.jwtToken) {
+  setAuthorizationToken(localStorage.jwtToken);
+  store.dispatch(setCurrentUser(jwtDecode(localStorage.jwtToken)));
+}
 
-ReactDOM.render(
-  <Provider store={createStoreWithMiddleware(rootReducer)}>
-    <App />
-  </Provider>
-  , document.querySelector('.root'));
+render(
+  <Provider store={store}>
+    <Router history={browserHistory} routes={routes} />
+  </Provider>, document.getElementById('app'));
