@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './components/form.jsx';
+import App from './components/SignUpForm.jsx/index.js.js';
 import { createStore, applyMiddleware } from 'redux'; 
 
 import {Provider} from 'react-redux';

@@ -1,8 +1,10 @@
-import  * as AT from '../action-types';
+import  * as AT from '../actions/action-types';
 import { combineReducers } from 'redux';
 
 var initial_state = {
-    testField: true
+    login: '',
+    password:'',
+    email:''
 }
 
 function root(state = initial_state,action){

@@ -68,7 +68,9 @@ func main() {
 
 	http.HandleFunc("/registration", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
-
+			r.ParseForm()
+			c := r.FormValue("email")
+			fmt.Print(c)
 		}
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
