@@ -1,8 +1,9 @@
 import React from 'react';
 import timezones from '../../data/timezones';
 import classnames from 'classnames';
-import validateInput from '../../../server/shared/validations/signup';
+import validateInput from '../../shared/validations/signup';
 import TextFieldGroup from '../common/TextFieldGroup';
+import PropTypes from 'prop-types';
 
 class SignupForm extends React.Component {
   constructor(props) {
@@ -144,13 +145,13 @@ class SignupForm extends React.Component {
 }
 
 SignupForm.propTypes = {
-  userSignupRequest: React.PropTypes.func.isRequired,
-  addFlashMessage: React.PropTypes.func.isRequired,
-  isUserExists: React.PropTypes.func.isRequired
+  userSignupRequest: PropTypes.func.isRequired,
+  addFlashMessage: PropTypes.func.isRequired,
+  isUserExists: PropTypes.func.isRequired
 }
 
 SignupForm.contextTypes = {
-  router: React.PropTypes.object.isRequired
+  router: PropTypes.object.isRequired
 }
 
 export default SignupForm;

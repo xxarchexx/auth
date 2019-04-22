@@ -1,5 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
+import { PropTypes } from 'prop-types';
 
 const TextFieldGroup = ({ field, value, label, error, type, onChange, checkUserExists }) => {
   return (
@@ -18,13 +19,13 @@ const TextFieldGroup = ({ field, value, label, error, type, onChange, checkUserE
 }
 
 TextFieldGroup.propTypes = {
-  field: React.PropTypes.string.isRequired,
-  value: React.PropTypes.string.isRequired,
-  label: React.PropTypes.string.isRequired,
-  error: React.PropTypes.string,
-  type: React.PropTypes.string.isRequired,
-  onChange: React.PropTypes.func.isRequired,
-  checkUserExists: React.PropTypes.func
+  field: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  error: PropTypes.string,
+  type: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  checkUserExists: PropTypes.func
 }
 
 TextFieldGroup.defaultProps = {

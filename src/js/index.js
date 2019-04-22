@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from 'react-dom';
-import { Router, browserHistory } from 'react-router';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import { createStore, applyMiddleware, compose } from 'redux';
@@ -8,8 +7,17 @@ import rootReducer from './rootReducer';
 import setAuthorizationToken from './utils/setAuthorizationToken';
 import jwtDecode from 'jwt-decode';
 import { setCurrentUser } from './actions/authActions';
+import { BrowserRouter, Route } from 'react-router-dom';
 
-import routes from './routes';
+import App from './components/App';
+import Greetings from './components/Greetings';
+import SignupPage from './components/signup/SignupPage';
+//import LoginPage from './components/login/LoginPage';
+import NewEventPage from './components/events/NewEventPage';
+
+import requireAuth from './utils/requireAuth';
+
+
 
 const store = createStore(
   rootReducer,
@@ -26,5 +34,11 @@ if (localStorage.jwtToken) {
 
 render(
   <Provider store={store}>
-    <Router history={browserHistory} routes={routes} />
+   <BrowserRouter>
+    <Route path="index2" component={App} />
+    <Route path="helllo" component={Greetings} />
+    <Route path="signup" component={SignupPage} />
+    <Route path="new-event" component={requireAuth(NewEventPage)} />
+  </BrowserRouter>
+    
   </Provider>, document.getElementById('app'));

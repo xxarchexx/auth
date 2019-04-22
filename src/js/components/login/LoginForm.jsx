@@ -1,8 +1,9 @@
 import React from 'react';
 import TextFieldGroup from '../common/TextFieldGroup';
-import validateInput from '../../../server/shared/validations/login';
+import validateInput from '../../shared/validations/login';
 import { connect } from 'react-redux';
 import { login } from '../../actions/authActions';
+import PropTypes from 'prop-types';
 
 class LoginForm extends React.Component {
   constructor(props) {
@@ -76,11 +77,11 @@ class LoginForm extends React.Component {
 }
 
 LoginForm.propTypes = {
-  login: React.PropTypes.func.isRequired
+  login: PropTypes.func.isRequired
 }
 
 LoginForm.contextTypes = {
-  router: React.PropTypes.object.isRequired
+  router: PropTypes.object.isRequired
 }
 
 export default connect(null, { login })(LoginForm);

@@ -13,6 +13,8 @@
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
     "@babel/preset-react": "^7.0.0",
+    "@types/react-redux": "^7.0.8",
+    "@types/react-router-dom": "^4.3.2",
     "@types/validator": "^10.11.0",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.0.5",
@@ -37,9 +39,14 @@
   "dependencies": {
     "@types/react": "^16.8.13",
     "@types/react-dom": "^16.8.4",
+    "@types/react-router": "^4.4.5",
     "axios": "^0.18.0",
+    "classnames": "^2.2.6",
     "jwt-decode": "^2.2.0",
     "lodash.isempty": "^4.4.0",
+    "react-router": "^5.0.0",
+    "redux-thunk": "^2.3.0",
+    "shortid": "^2.2.14",
     "validator": "^10.11.0"
   }
 }
