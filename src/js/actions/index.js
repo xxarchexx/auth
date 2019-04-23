@@ -8,6 +8,6 @@ export  function signUp(userData){
 
 export function ifUserExists(identifier){
     return dispatch =>{
-        return axios.get(`/api/users/${identifier}`);
+            return axios.get(`/api/users/${identifier}`);
     }
 }

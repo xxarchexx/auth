@@ -1,11 +1,15 @@
 var path = require('path')
+const webpack = require('webpack');
 
 const HtmlWebPackPlugin = require("html-webpack-plugin");
-module.exports = {
+module.exports = { 
+  devtool: 'source-map',
   entry: {
-    main: './src/js/index.js',
-    ts: './src/js/components/Hello.tsx'
+    main: './src/js/index.js'    
   },
+  plugins:[
+    new webpack.LoaderOptionsPlugin({ debug: true  }),
+  ],
   output:{    
     filename:  '[name].js',
     path: __dirname + '/static'
@@ -15,9 +19,13 @@ module.exports = {
       { test: /\.tsx?$/, loader: "awesome-typescript-loader" },
       {
         test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
+        exclude: /node_modules/, 
+        
         use: {
-          loader: "babel-loader"
+          loader: "babel-loader",
+          query:{
+            sourceMap: true
+          },
         }
       },
       {

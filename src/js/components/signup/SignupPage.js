@@ -6,7 +6,7 @@ import { addFlashMessage } from '../../actions/flashMessages.js';
 import PropTypes from 'prop-types';
 
 class SignupPage extends React.Component {
-  render() {
+    render() {
     const { userSignupRequest, addFlashMessage, isUserExists } = this.props;
     return (
       <div className="row">

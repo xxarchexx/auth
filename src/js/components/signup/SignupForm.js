@@ -1,11 +1,12 @@
 import React from 'react';
-import timezones from '../../data/timezones';
+// import timezones from '../../data/timezones';
 import classnames from 'classnames';
 import validateInput from '../../shared/validations/signup';
 import TextFieldGroup from '../common/TextFieldGroup';
 import PropTypes from 'prop-types';
 
 class SignupForm extends React.Component {
+ 
   constructor(props) {
     super(props);
     this.state = {
@@ -62,6 +63,7 @@ class SignupForm extends React.Component {
 
     if (this.isValid()) {
       this.setState({ errors: {}, isLoading: true });
+      
       this.props.userSignupRequest(this.state).then(
         () => {
           this.props.addFlashMessage({
@@ -77,9 +79,9 @@ class SignupForm extends React.Component {
 
   render() {
     const { errors } = this.state;
-    const options = map(timezones, (val, key) =>
-      <option key={val} value={val}>{key}</option>
-    );
+    // const options = map(timezones, (val, key) =>
+    //   <option key={val} value={val}>{key}</option>
+    // );
     return (
       <form onSubmit={this.onSubmit}>
         <h1>Join our community!</h1>
@@ -129,7 +131,7 @@ class SignupForm extends React.Component {
             value={this.state.timezone}
           >
             <option value="" disabled>Choose Your Timezone</option>
-            {options}
+            {/* {options} */}
           </select>
           {errors.timezone && <span className="help-block">{errors.timezone}</span>}
         </div>
@@ -150,8 +152,8 @@ SignupForm.propTypes = {
   isUserExists: PropTypes.func.isRequired
 }
 
-SignupForm.contextTypes = {
-  router: PropTypes.object.isRequired
-}
+// SignupForm.contextTypes = {
+//   router: PropTypes.object.isRequired
+// }
 
 export default SignupForm;
