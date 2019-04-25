@@ -61,8 +61,8 @@ class SignupForm extends React.Component {
   onSubmit(e) {
     e.preventDefault();
 
-    if (this.isValid()) {
-      this.setState({ errors: {}, isLoading: true });
+    // if (this.isValid()) {
+    //   this.setState({ errors: {}, isLoading: true });
       
       this.props.userSignupRequest(this.state).then(
         () => {
@@ -75,7 +75,7 @@ class SignupForm extends React.Component {
         (err) => this.setState({ errors: err.response.data, isLoading: false })
       );
     }
-  }
+  
 
   render() {
     const { errors } = this.state;

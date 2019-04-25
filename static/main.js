@@ -43013,27 +43013,22 @@ function (_React$Component) {
     value: function onSubmit(e) {
       var _this3 = this;
 
-      e.preventDefault();
+      e.preventDefault(); // if (this.isValid()) {
+      //   this.setState({ errors: {}, isLoading: true });
 
-      if (this.isValid()) {
-        this.setState({
-          errors: {},
-          isLoading: true
+      this.props.userSignupRequest(this.state).then(function () {
+        _this3.props.addFlashMessage({
+          type: 'success',
+          text: 'You signed up successfully. Welcome!'
         });
-        this.props.userSignupRequest(this.state).then(function () {
-          _this3.props.addFlashMessage({
-            type: 'success',
-            text: 'You signed up successfully. Welcome!'
-          });
 
-          _this3.context.router.push('/');
-        }, function (err) {
-          return _this3.setState({
-            errors: err.response.data,
-            isLoading: false
-          });
+        _this3.context.router.push('/');
+      }, function (err) {
+        return _this3.setState({
+          errors: err.response.data,
+          isLoading: false
         });
-      }
+      });
     }
   }, {
     key: "render",
@@ -43254,9 +43249,12 @@ if (localStorage.jwtToken) {
 Object(react_dom__WEBPACK_IMPORTED_MODULE_1__["render"])(react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_redux__WEBPACK_IMPORTED_MODULE_2__["Provider"], {
   store: store
 }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_9__["BrowserRouter"], null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_9__["Route"], {
+  path: "/login",
+  component: _components_App__WEBPACK_IMPORTED_MODULE_10__["default"]
+}), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_9__["Route"], {
   path: "/index2",
   component: _components_App__WEBPACK_IMPORTED_MODULE_10__["default"]
-}), " */}", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_9__["Route"], {
+}), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_9__["Route"], {
   path: "/index43",
   component: _components_Greetings__WEBPACK_IMPORTED_MODULE_11__["default"]
 }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_9__["Route"], {

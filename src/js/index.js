@@ -35,9 +35,10 @@ if (localStorage.jwtToken) {
 render(
   <Provider store={store}>
    <BrowserRouter>
-     <Route path="/index2" component={App} /> */}
-   <Route path="/index43" component={Greetings} />
-     <Route path="/signup" component={SignupPage} />
+     <Route path="/login"  component={App} /> 
+    <Route path="/index2" component={App} />
+    <Route path="/index43" component={Greetings} />
+    <Route path="/signup" component={SignupPage} />
   </BrowserRouter>
     
   </Provider>, document.getElementById('app'));

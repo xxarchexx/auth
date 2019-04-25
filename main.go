@@ -1,6 +1,7 @@
 package main
 
 import (
+	mailll "auth/mail"
 	"auth/pages"
 	"encoding/json"
 	"fmt"
@@ -20,7 +21,20 @@ import (
 	"gopkg.in/oauth2.v3/store"
 )
 
+func registerClients() {
+	clientStore := store.NewClientStore()
+	clientStore.Set("222222", &models.Client{
+		ID:     "222222",
+		Secret: "22222222",
+		Domain: "http://localhost:8000",
+	})
+
+}
+
 func main() {
+
+	mailll.SendMessage()
+	return
 
 	pages.LoadPage()
 
@@ -35,22 +49,7 @@ func main() {
 	// generate jwt access24341 token
 	manager.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte("00000000"), jwt.SigningMethodHS512))
 
-	clientStore := store.NewClientStore()
-	clientStore.Set("222222", &models.Client{
-		ID:     "222222",
-		Secret: "22222222",
-		Domain: "http://localhost:9094",
-	})
-
 	srv := server.NewServer(server.NewConfig(), manager)
-
-	//vsdfsadsadsdsd
-	srv.SetPasswordAuthorizationHandler(func(username, password string) (userID string, err error) {
-		if username == "test" && password == "test" {
-			userID = "test"
-		}
-		return
-	})
 
 	srv.SetUserAuthorizationHandler(userAuthorizeHandler)
 
@@ -178,7 +177,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusFound)
 		return
 	}
-	outputHTML(w, r, "static/login.html")
+	outputHTML2(w, r) //, "static/login.html")
 }
 
 func authHandler(w http.ResponseWriter, r *http.Request) {
@@ -195,6 +194,11 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	outputHTML(w, r, "static/auth.html")
+}
+
+func outputHTML2(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	fmt.Fprintf(w, "%s", pages.Pages["login.html"].Body)
 }
 
 func outputHTML(w http.ResponseWriter, req *http.Request, filename string) {
