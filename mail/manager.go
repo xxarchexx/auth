@@ -1,4 +1,4 @@
-package mailll
+package mail
 
 import (
 	"net/smtp"
@@ -14,18 +14,19 @@ type message struct {
 	Body   string
 }
 
-func SendMessage() {
+//SendMessage smpt message
+func SendMessage(to, body, subject string) {
 	m := gomail.NewMessage()
 	m.SetHeader("From", "sansolovyov19866@gmail.com")
-	m.SetHeader("To", "sansolovyov@mail.ru")
+	m.SetHeader("To", to)
 	// m.SetAddressHeader("Cc", "")
 	m.SetBody("text/html", "Hello<b>Bob</b>!")
 	d := gomail.NewDialer("smtp.gmail.com", 25, "sansolovyov19866@gmail.com", "Alexander14a@93dy")
-
-	if err := d.DialAndSend(m); err != nil {
+	err := d.DialAndSend(m)
+	if err != nil {
 		panic(err)
 	}
-
-	// msg := message{}
-	// msg.client =
 }
+
+// msg := message{}
+// msg.client =

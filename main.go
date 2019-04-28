@@ -1,18 +1,22 @@
 package main
 
 import (
-	mailll "auth/mail"
+	"auth/database"
+	"auth/mail"
 	"auth/pages"
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-session/session"
+	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/oauth2.v3/errors"
 	"gopkg.in/oauth2.v3/generates"
 	"gopkg.in/oauth2.v3/manage"
@@ -33,8 +37,7 @@ func registerClients() {
 
 func main() {
 
-	mailll.SendMessage()
-	return
+	//return
 
 	pages.LoadPage()
 
@@ -62,18 +65,56 @@ func main() {
 		log.Println("Response Error:", re.Error.Error())
 	})
 
+	http.HandleFunc("/confim/asdasdsadasd", confirmHandler)
+
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/auth", authHandler)
 
+	type Users struct {
+		Username     string `json:"username"`
+		Email        string `json:"email"`
+		Password     string `json:"password"`
+		TempLink     string
+		PasswordHahs string
+	}
+
+	var letterRunes = []rune("1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
 	http.HandleFunc("/registration", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "POST" {
-			r.ParseForm()
-			c := r.FormValue("email")
-			fmt.Print(c)
+		u := Users{}
+
+		decoder := json.NewDecoder(r.Body)
+		decoder.Decode(&u)
+		rand.Seed(time.Now().UnixNano())
+
+		hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.MinCost)
+
+		if err != nil {
+			panic(err)
 		}
 
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "%s", "TEST")
+		u.PasswordHahs = string(hash)
+
+		keyLink := make([]rune, 6)
+		for i := range keyLink {
+			keyLink[i] = letterRunes[rand.Intn(len(letterRunes))]
+		}
+
+		var body = "<p><strong>Спасибо за регистрацию , для завершения регистрации пройдите по ссылке ниже</strong></p><p><a href=\"localhost:/configm/%s\">Подтвердите ссылку</a></p>"
+
+		body = fmt.Sprintf(body, keyLink)
+
+		mail.SendMessage(string(u.Email), string(body), "Добрый вечер, подтвердите авторизацию")
+		database.Adduser(string(u.Username), string(u.Username), string(u.PasswordHahs), string(keyLink))
+
+		// if r.Method == "POST" {
+		// 	r.ParseForm()
+		// 	c := r.FormValue("email")
+		// 	fmt.Print(c)
+		// }
+
+		// w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		// fmt.Fprintf(w, "%s", "TEST")
 	})
 
 	http.HandleFunc("/button", func(w http.ResponseWriter, r *http.Request) {
@@ -134,6 +175,11 @@ func main() {
 
 	log.Println("Server is running at 9098 port.")
 	log.Fatal(http.ListenAndServe(":9098", nil))
+}
+
+func confirmHandler(w http.ResponseWriter, r *http.Request) {
+	id := strings.TrimPrefix(r.URL.Path, "/confirm/")
+	fmt.Print(id)
 }
 
 func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {

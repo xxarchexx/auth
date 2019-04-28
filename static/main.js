@@ -42305,7 +42305,7 @@ __webpack_require__.r(__webpack_exports__);
 
 function userSignupRequest(userData) {
   return function (dispatch) {
-    return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/api/users', userData);
+    return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/registration', userData);
   };
 }
 function isUserExists(identifier) {

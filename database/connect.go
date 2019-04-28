@@ -3,20 +3,10 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	_ "strings"
 
 	_ "github.com/lib/pq"
 )
-
-type user_data struct {
-	userid   int
-	name     int
-	password string
-	email    string
-}
-
-type usr_data struct {
-	users []user_data
-}
 
 const (
 	dbhost = "DBHOST"
@@ -26,36 +16,39 @@ const (
 	dbname = "DBNAME"
 )
 
-func selectUsers(users *usr_data) error {
-	rows, err := db.Query(`
-		Select id,name,address,email from users
-	`)
-
-	defer rows.Close()
-
-	for rows.Next() {
-		user := user_data{}
-		err = rows.Scan(
-			&user.userid,
-			&user.name,
-			&user.email,
-		)
-
-		if err != nil {
-			return err
-		}
-	}
-
-	err = rows.Err()
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 var db *sql.DB
+
+const string = "Insert Into USERS (name,se"
+
+type Status int
+
+const (
+	Added Status = iota
+	Faild
+	Exixsts
+)
+
+const selectstring = "select count (1) from users where email = ?"
+
+//Adduser with check if exists into temp table
+func Adduser(name, login, password, email, confimgPassword string) (status Status) {
+	//u := User{Name: name, login: login, email: email, password: password}
+	db.Query("Select count(1) from users where email =?", email)
+	defer rows.Close()
+	var cntRow int = 0
+	err = db.Query(selectstring, email).Scan(&cntRow)
+	if err != nil {
+		return Faild
+		panic(err)
+	}
+	if cntRow > 0 {
+		return Exixsts
+	}
+
+	db.Exec("Insert Into TEMP_USERS (USERNAME,LOGIN,PASSWORD,EMAIL,TEMP_LINK", name, login, password, email, "33")
+
+	return Added
+}
 
 func initDb() {
 	config := dbConfig()
@@ -66,6 +59,12 @@ func initDb() {
 		config[dbuser], config[dbpass], config[dbname])
 
 	db, err = sql.Open("postgres", psqlInfo)
+	err = db.Ping()
+
+	if err != nil {
+		panic(err)
+	}
+
 	if err != nil {
 		panic(err)
 	}
@@ -78,26 +77,7 @@ func initDb() {
 
 func dbConfig() map[string]string {
 	conf := make(map[string]string)
-	// host, ok := os.LookupEnv(dbhost)
-	// if !ok {
-	// 	panic("DBHOST environment variable required but not set")
-	// }
-	// port, ok := os.LookupEnv(dbport)
-	// if !ok {
-	// 	panic("DBPORT environment variable required but not set")
-	// }
-	// user, ok := os.LookupEnv(dbuser)
-	// if !ok {
-	// 	panic("DBUSER environment variable required but not set")
-	// }
-	// password, ok := os.LookupEnv(dbpass)
-	// if !ok {
-	// 	panic("DBPASS environment variable required but not set")
-	// }
-	// name, ok := os.LookupEnv(dbname)
-	// if !ok {
-	// 	panic("DBNAME environment variable required but not set")
-	// }
+
 	conf[dbhost] = "localhost"
 	conf[dbport] = "5432"
 	conf[dbuser] = "docker"
