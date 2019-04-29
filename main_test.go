@@ -1,10 +1,23 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"testing"
 )
+
+func TestString(t *testing.T) {
+	s := "/confirm/123"
+	t.Log("test")
+	t.Logf("test")
+
+	re := regexp.MustCompile("/confirm/([\\d\\w]*)")
+	match := re.FindAllString(s, 0)
+	t.Error(match[0][0])
+	fmt.Println(match[0][0])
+}
 
 func TestHealthCheckHandler(t *testing.T) {
 	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll

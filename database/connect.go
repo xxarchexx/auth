@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	_ "strings"
 
 	_ "github.com/lib/pq"
@@ -18,8 +19,6 @@ const (
 
 var db *sql.DB
 
-const string = "Insert Into USERS (name,se"
-
 type Status int
 
 const (
@@ -30,27 +29,63 @@ const (
 
 const selectstring = "select count (1) from users where email = ?"
 
-//Adduser with check if exists into temp table
-func Adduser(name, login, password, email, confimgPassword string) (status Status) {
-	//u := User{Name: name, login: login, email: email, password: password}
-	db.Query("Select count(1) from users where email =?", email)
-	defer rows.Close()
-	var cntRow int = 0
-	err = db.Query(selectstring, email).Scan(&cntRow)
+//ApproveUser db//
+func ApproveUserdb(confimCode string) bool {
+	_, err := db.Exec(`insert into users (name,password,email,approve_date) 
+	select name,password,email,current_date as approve_date from users_temp
+	where temp_link = $1 `, confimCode)
+
 	if err != nil {
-		return Faild
 		panic(err)
 	}
+
+	_, err = db.Exec(`delete from users_temp where temp_link = $1 `, confimCode)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return true
+}
+
+//Adduser with check if exists into temp table
+func Adduser(name, login, password, email, tempCode string) (status Status) {
+	//u := User{Name: name, login: login, email: email, password: password}
+	cntRow := 0
+
+	rows, err := db.Query("Select count(1) from users where name = $1", "test")
+
+	defer rows.Close()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for rows.Next() {
+		// var name string
+		if err := rows.Scan(&cntRow); err != nil {
+			// Check for a scan error.
+			// Query rows will be closed with defer.
+			log.Fatal(err)
+		}
+		log.Print(cntRow)
+	}
+
 	if cntRow > 0 {
 		return Exixsts
 	}
 
-	db.Exec("Insert Into TEMP_USERS (USERNAME,LOGIN,PASSWORD,EMAIL,TEMP_LINK", name, login, password, email, "33")
+	// if CntRow > 0 {
+	// 	return Exixsts
+	// }
 
-	return Added
+	db.Exec("Insert Into users (USERNAME,LOGIN,PASSWORD,EMAIL,TEMP_LINK) values($1, $2, $3, $4, $5)", name, login, password, email, tempCode)
+	return Exixsts
+	// return Added
 }
 
-func initDb() {
+//InitDb
+func InitDb() {
 	config := dbConfig()
 	var err error
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+

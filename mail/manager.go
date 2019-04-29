@@ -18,9 +18,9 @@ type message struct {
 func SendMessage(to, body, subject string) {
 	m := gomail.NewMessage()
 	m.SetHeader("From", "sansolovyov19866@gmail.com")
-	m.SetHeader("To", to)
+	m.SetHeader("To", "sansolovyov@mail.ru")
 	// m.SetAddressHeader("Cc", "")
-	m.SetBody("text/html", "Hello<b>Bob</b>!")
+	m.SetBody("text/html", body)
 	d := gomail.NewDialer("smtp.gmail.com", 25, "sansolovyov19866@gmail.com", "Alexander14a@93dy")
 	err := d.DialAndSend(m)
 	if err != nil {

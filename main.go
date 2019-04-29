@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
+	"regexp"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -35,12 +35,52 @@ func registerClients() {
 
 }
 
+func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
+	store, err := session.Start(nil, w, r)
+	if err != nil {
+		return
+	}
+
+	uid, ok := store.Get("LoggedInUserID")
+	if !ok {
+		if r.Form == nil {
+			r.ParseForm()
+		}
+
+		store.Set("ReturnUri", r.Form)
+		store.Save()
+
+		w.Header().Set("Location", "/login")
+		w.WriteHeader(http.StatusFound)
+		return
+	}
+
+	userID = uid.(string)
+	store.Delete("LoggedInUserID")
+	store.Save()
+	return
+}
+
 func main() {
+
+	// s := "/confirm/123"
+
+	// s := "/confirm/1223232fff3"
+	// re1, _ := regexp.Compile(`/confirm/([\d+\w+]*)`)
+	// result := re1.FindStringSubmatch(s)
+	// ss := len(result)
+	// log.Print(ss)
+	// fmt.Printf(result[1])
+	// for k, v := range result {
+	// 	fmt.Printf("%d. %s\n", k, v)
+	// }
+
+	// return
 
 	//return
 
 	pages.LoadPage()
-
+	database.InitDb()
 	manager := manage.NewDefaultManager()
 	manager.SetAuthorizeCodeTokenCfg(manage.DefaultAuthorizeCodeTokenCfg)
 	fs := http.FileServer(http.Dir("static"))
@@ -65,9 +105,9 @@ func main() {
 		log.Println("Response Error:", re.Error.Error())
 	})
 
-	http.HandleFunc("/confim/asdasdsadasd", confirmHandler)
+	http.HandleFunc("/confim/", confirmHandler)
 
-	http.HandleFunc("/login", loginHandler)
+	//http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/auth", authHandler)
 
 	type Users struct {
@@ -100,12 +140,12 @@ func main() {
 			keyLink[i] = letterRunes[rand.Intn(len(letterRunes))]
 		}
 
-		var body = "<p><strong>Спасибо за регистрацию , для завершения регистрации пройдите по ссылке ниже</strong></p><p><a href=\"localhost:/configm/%s\">Подтвердите ссылку</a></p>"
+		var body = "<p><strong>Спасибо за регистрацию , для завершения регистрации пройдите по ссылке ниже</strong></p><p><a href=\"http://localhost:/configm/%s\">Подтвердите ссылку</a></p>"
 
 		body = fmt.Sprintf(body, keyLink)
 
 		mail.SendMessage(string(u.Email), string(body), "Добрый вечер, подтвердите авторизацию")
-		database.Adduser(string(u.Username), string(u.Username), string(u.PasswordHahs), string(keyLink))
+		database.Adduser(string(u.Username), string(u.Username), string(u.Email), string(u.PasswordHahs), string(keyLink))
 
 		// if r.Method == "POST" {
 		// 	r.ParseForm()
@@ -122,9 +162,9 @@ func main() {
 		fmt.Fprintf(w, "%s", pages.Pages["button.html"].Body)
 	})
 
-	http.HandleFunc("/index2", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "%s", pages.Pages["index2.html"].Body)
+		fmt.Fprintf(w, "%s", pages.Pages["login.html"].Body)
 	})
 
 	http.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
@@ -173,39 +213,27 @@ func main() {
 		e.Encode(data)
 	})
 
-	log.Println("Server is running at 9098 port.")
-	log.Fatal(http.ListenAndServe(":9098", nil))
+	log.Println("Server is running at 9096 port.")
+	log.Fatal(http.ListenAndServe(":9096", nil))
 }
 
 func confirmHandler(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, "/confirm/")
-	fmt.Print(id)
-}
-
-func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
-	store, err := session.Start(nil, w, r)
-	if err != nil {
+	re1, _ := regexp.Compile(`/confirm/([\d+\w+]*)`)
+	result := re1.FindStringSubmatch(r.URL.Path)
+	cntMatches := len(result)
+	if cntMatches < 2 {
+		log.Print("confimt pattern is not correct")
 		return
 	}
 
-	uid, ok := store.Get("LoggedInUserID")
-	if !ok {
-		if r.Form == nil {
-			r.ParseForm()
-		}
+	fmt.Printf(result[1])
+	// for k, v := range result {
+	// 	// fmt.Printf("%d. %s\n", k, v)
+	// }
+	database.ApproveUserdb(result[1])
 
-		store.Set("ReturnUri", r.Form)
-		store.Save()
-
-		w.Header().Set("Location", "/login")
-		w.WriteHeader(http.StatusFound)
-		return
-	}
-
-	userID = uid.(string)
-	store.Delete("LoggedInUserID")
-	store.Save()
 	return
+
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
