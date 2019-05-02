@@ -1,18 +1,29 @@
-import { SET_CURRENT_USER } from '../actions/types';
+import { SIGNUP,SUGN_UP_SUCCESS } from '../actions/action-types';
 import isEmpty from 'lodash/isEmpty';
 
 const initialState = {
-  isAuthenticated: false,
+  isRegistratedSuccess: false,
+  payload :{},
   user: {}
 };
 
-export default (state = initialState, action = {}) => {
+ var Auth = (state = initialState, action = {}) => {
   switch(action.type) {
-    case SET_CURRENT_USER:
-      return {
-        isAuthenticated: !isEmpty(action.user),
-        user: action.user
-      };
+    case SIGNUP:
+       return Object.assign({},state, {
+            action: action.type,
+            payload: action.payload,
+            redirect: true              
+      });
+      case SUGN_UP_SUCCESS:
+          return Object.assign({},state, {
+           action: action.type,
+           payload: payload,
+           redirect: true              
+     });
+      
     default: return state;
   }
 }
+
+export default Auth;

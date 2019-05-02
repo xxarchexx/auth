@@ -32,7 +32,6 @@ func registerClients() {
 		Secret: "22222222",
 		Domain: "http://localhost:8000",
 	})
-
 }
 
 func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
@@ -61,6 +60,10 @@ func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 	return
 }
 
+type ResponseData struct {
+	RedirectURL string
+}
+
 func main() {
 
 	// s := "/confirm/123"
@@ -80,11 +83,16 @@ func main() {
 	//return
 
 	pages.LoadPage()
-	database.InitDb()
+	// database.InitDb()
 	manager := manage.NewDefaultManager()
 	manager.SetAuthorizeCodeTokenCfg(manage.DefaultAuthorizeCodeTokenCfg)
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
+	http.HandleFunc("/index2", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Location", "/index3")
+		w.WriteHeader(http.StatusFound)
+	})
 
 	// token store
 	manager.MustTokenStorage(store.NewMemoryTokenStore())
@@ -121,8 +129,17 @@ func main() {
 	var letterRunes = []rune("1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 	http.HandleFunc("/registration", func(w http.ResponseWriter, r *http.Request) {
-		u := Users{}
 
+		w.Header().Set("Content-Type", "application/json")
+		resData := ResponseData{`https://www.alexedwards.net/blog/golang-response-snippets`}
+		js, err := json.Marshal(resData)
+		if err != nil {
+			panic(err)
+		}
+		w.Write(js)
+		return
+		u := Users{}
+		return
 		decoder := json.NewDecoder(r.Body)
 		decoder.Decode(&u)
 		rand.Seed(time.Now().UnixNano())

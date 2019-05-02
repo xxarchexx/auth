@@ -2,7 +2,6 @@ import React from 'react';
 import TextFieldGroup from '../common/TextFieldGroup';
 import validateInput from '../../shared/validations/login';
 import { connect } from 'react-redux';
-import { login } from '../../actions/authActions';
 import PropTypes from 'prop-types';
 
 class LoginForm extends React.Component {
@@ -31,13 +30,7 @@ class LoginForm extends React.Component {
 
   onSubmit(e) {
     e.preventDefault();
-    if (this.isValid()) {
-      this.setState({ errors: {}, isLoading: true });
-      this.props.login(this.state).then(
-        (res) => this.context.router.push('/'),
-        (err) => this.setState({ errors: err.response.data.errors, isLoading: false })
-      );
-    }
+    return;
   }
 
   onChange(e) {
@@ -76,12 +69,4 @@ class LoginForm extends React.Component {
   }
 }
 
-LoginForm.propTypes = {
-  login: PropTypes.func.isRequired
-}
-
-LoginForm.contextTypes = {
-  router: PropTypes.object.isRequired
-}
-
-export default connect(null, { login })(LoginForm);
+export default LoginForm;

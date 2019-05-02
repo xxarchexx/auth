@@ -1,12 +1,15 @@
 import React from 'react';
-// import timezones from '../../data/timezones';
-import classnames from 'classnames';
+import { Redirect } from 'react-router'
 import validateInput from '../../shared/validations/signup';
 import TextFieldGroup from '../common/TextFieldGroup';
 import PropTypes from 'prop-types';
+import  axios from 'axios';
+// import {
+//   withRouter
+// } from 'react-router-dom'
 
 class SignupForm extends React.Component {
- 
+
   constructor(props) {
     super(props);
     this.state = {
@@ -17,14 +20,17 @@ class SignupForm extends React.Component {
       timezone: '',
       errors: {},
       isLoading: false,
-      invalid: false
+      invalid: false,
+      redirect: false,
     }
-
-    this.onChange = this.onChange.bind(this);
+    this.redirectUrl = ""
+    this.formClass = "active"
+    
     this.onSubmit = this.onSubmit.bind(this);
+    this.onChange = this.onChange.bind(this);
     this.checkUserExists = this.checkUserExists.bind(this);
   }
-
+  
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
   }
@@ -39,51 +45,31 @@ class SignupForm extends React.Component {
     return isValid;
   }
 
-  checkUserExists(e) {
-    const field = e.target.name;
-    const val = e.target.value;
-    if (val !== '') {
-      this.props.isUserExists(val).then(res => {
-        let errors = this.state.errors;
-        let invalid;
-        if (res.data.user) {
-          errors[field] = 'There is user with such ' + field;
-          invalid = true;
-        } else {
-          errors[field] = '';
-          invalid = false;
-        }
-        this.setState({ errors, invalid });
-      });
+  checkUserExists(e) { 
+       return    
     }
-  }
   
+
   onSubmit(e) {
-    e.preventDefault();
-
-    // if (this.isValid()) {
-    //   this.setState({ errors: {}, isLoading: true });
-      
-      this.props.userSignupRequest(this.state).then(
-        () => {
-          this.props.addFlashMessage({
-            type: 'success',
-            text: 'You signed up successfully. Welcome!'
-          });
-          this.context.router.push('/');
-        },
-        (err) => this.setState({ errors: err.response.data, isLoading: false })
-      );
+    e.preventDefault();     
+      this.props.userSignupRequest(this.state) 
+      this.setState({ redirect: this.props.needRedirect })     
     }
-  
 
-  render() {
+  render() {   
+   
     const { errors } = this.state;
+    if(this.state.redirect === true){
+      return (<div><Redirect to={this.props.redirectURL} /></div>)
+    }
+
     // const options = map(timezones, (val, key) =>
     //   <option key={val} value={val}>{key}</option>
     // );
     return (
-      <form onSubmit={this.onSubmit}>
+      <div className="row">
+        <div className="col-md-4 col-md-offset-4">
+      <form onSubmit={this.onSubmit} >
         <h1>Join our community!</h1>
 
         <TextFieldGroup
@@ -122,38 +108,16 @@ class SignupForm extends React.Component {
           type="password"
         />
 
-        <div className={classnames("form-group", { 'has-error': errors.timezone })}>
-          <label className="control-label">Timezone</label>
-          <select
-            className="form-control"
-            name="timezone"
-            onChange={this.onChange}
-            value={this.state.timezone}
-          >
-            <option value="" disabled>Choose Your Timezone</option>
-            {/* {options} */}
-          </select>
-          {errors.timezone && <span className="help-block">{errors.timezone}</span>}
-        </div>
-
         <div className="form-group">
           <button disabled={this.state.isLoading || this.state.invalid} className="btn btn-primary btn-lg">
             Sign up
           </button>
         </div>
       </form>
+      </div>
+      </div>
     );
   }
 }
-
-SignupForm.propTypes = {
-  userSignupRequest: PropTypes.func.isRequired,
-  addFlashMessage: PropTypes.func.isRequired,
-  isUserExists: PropTypes.func.isRequired
-}
-
-// SignupForm.contextTypes = {
-//   router: PropTypes.object.isRequired
-// }
 
 export default SignupForm;

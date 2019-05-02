@@ -4,12 +4,18 @@ import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import { createStore, applyMiddleware, compose } from 'redux';
 import rootReducer from './rootReducer';
+import setAuthorizationToken from './utils/setAuthorizationToken';
 import jwtDecode from 'jwt-decode';
+import { setCurrentUser } from './actions/authActions';
 import { BrowserRouter, Route } from 'react-router-dom';
-import App from './rootContainers/App';
+
+import LoginSignUpLinkPage from './rootContainers/LoginSignUpLinkPage';
 import Greetings from './components/Greetings';
 import SignupPage from './components/signup/SignupPage';
-import LoginSignUpLinkPage from './rootContainers/LoginSignUpLinkPage';
+//import LoginPage from './components/login/LoginPage';
+import NewEventPage from './components/events/NewEventPage';
+
+// import requireAuth from './utils/requireAuth';
 
 
 
@@ -17,7 +23,7 @@ const store = createStore(
   rootReducer,
   compose(
     applyMiddleware(thunk),
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+    window.devToolsExtension ? window.devToolsExtension() : f => f
   )
 );
 
@@ -28,11 +34,8 @@ if (localStorage.jwtToken) {
 
 render(
   <Provider store={store}>
-   <BrowserRouter> 
-    <Route path="/login"  component={LoginSignUpLinkPage} />
-    {/* <Route path="/index2" component={Greetings} /> */}
-    <Route path="/index43" component={Greetings} />
-    <Route path="/signup" component={SignupPage} />
+   <BrowserRouter>
+     <Route path="/login"  component={LoginSignUpLinkPage} />    
   </BrowserRouter>
     
   </Provider>, document.getElementById('app'));

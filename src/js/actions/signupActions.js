@@ -1,13 +1,18 @@
 import axios from 'axios';
+import {SIGNUP  } from './action-types';
+
+const userSignup = (data)=> {
+  return {
+    payload: axios.post('/registration', data),
+    type: SIGNUP
+  }
+}
 
 export function userSignupRequest(userData) {
-  return dispatch => {
-    return axios.post('/registration', userData);
-  }
+  return (dispatch) =>{ 
+      dispatch(userSignup(userData));
+   };
 }
 
-export function isUserExists(identifier) {
-  return dispatch => {
-    return axios.get(`/api/users/${identifier}`);
-  }
-}
+
+
