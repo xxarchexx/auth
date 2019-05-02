@@ -20,12 +20,14 @@ class SignupForm extends React.Component {
       timezone: '',
       errors: {},
       isLoading: false,
-      invalid: false,
-      redirect: false,
+      invalid: false     
     }
     this.redirectUrl = ""
     this.formClass = "active"
-    
+    //Here ya go
+    this.props.history.listen((location, action) => {
+      console.log("on route change");
+    });
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
     this.checkUserExists = this.checkUserExists.bind(this);
@@ -52,15 +54,15 @@ class SignupForm extends React.Component {
 
   onSubmit(e) {
     e.preventDefault();     
-      this.props.userSignupRequest(this.state) 
-      this.setState({ redirect: this.props.needRedirect })     
+      this.props.userSignupRequest(this.state)      
     }
 
   render() {   
    
     const { errors } = this.state;
-    if(this.state.redirect === true){
-      return (<div><Redirect to={this.props.redirectURL} /></div>)
+
+    if(this.props.needRedirect === true){      
+      window.location.assign('http://github.com');
     }
 
     // const options = map(timezones, (val, key) =>

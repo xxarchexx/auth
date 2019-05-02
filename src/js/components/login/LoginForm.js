@@ -13,7 +13,7 @@ class LoginForm extends React.Component {
       errors: {},
       isLoading: false
     };
-
+    
     this.onSubmit = this.onSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
   }
@@ -41,6 +41,7 @@ class LoginForm extends React.Component {
     const { errors, identifier, password, isLoading } = this.state;
 
     return (
+      
       <form onSubmit={this.onSubmit}>
         <h1>Login</h1>
 

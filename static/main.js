@@ -38425,7 +38425,7 @@ module.exports = function(module) {
 /*!****************************************!*\
   !*** ./src/js/actions/action-types.js ***!
   \****************************************/
-/*! exports provided: SIGNUP, LOGIN, SUGN_UP_SUCCESS, LOGIN_SICESS, SUGN_UP_FAILED, LOGIN_FAILED */
+/*! exports provided: SIGNUP, LOGIN, SUGN_UP_SUCCESS, LOGIN_SICESS, SUGN_UP_FAILED, LOGIN_FAILED, SIGN_UP_CLEAR */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -38436,12 +38436,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LOGIN_SICESS", function() { return LOGIN_SICESS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SUGN_UP_FAILED", function() { return SUGN_UP_FAILED; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LOGIN_FAILED", function() { return LOGIN_FAILED; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SIGN_UP_CLEAR", function() { return SIGN_UP_CLEAR; });
 var SIGNUP = 'SUGN_UP';
 var LOGIN = 'LOGIN';
 var SUGN_UP_SUCCESS = 'SUGN_UP_SUCCESS';
 var LOGIN_SICESS = 'LOGIN_SICESS';
 var SUGN_UP_FAILED = 'SUGN_UP_FAILED';
 var LOGIN_FAILED = 'LOGIN_FAILED';
+var SIGN_UP_CLEAR = 'SIGN_UP_CLEAR';
 
 /***/ }),
 
@@ -38463,14 +38465,25 @@ __webpack_require__.r(__webpack_exports__);
 
 var userSignup = function userSignup(data) {
   return {
-    payload: axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/registration', data),
-    type: _action_types__WEBPACK_IMPORTED_MODULE_1__["SIGNUP"]
+    payload: data,
+    type: _action_types__WEBPACK_IMPORTED_MODULE_1__["SUGN_UP_SUCCESS"]
+  };
+};
+
+var clearData = function clearData() {
+  return {
+    payload: null,
+    type: _action_types__WEBPACK_IMPORTED_MODULE_1__["SIGN_UP_CLEAR"]
   };
 };
 
 function userSignupRequest(userData) {
   return function (dispatch) {
-    dispatch(userSignup(userData));
+    axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/registration', userData).then(function (res) {
+      dispatch(userSignup(res.data));
+    }).then(function () {
+      dispatch(userClearData());
+    });
   };
 }
 
@@ -38891,11 +38904,15 @@ function (_React$Component) {
       timezone: '',
       errors: {},
       isLoading: false,
-      invalid: false,
-      redirect: false
+      invalid: false
     };
     _this.redirectUrl = "";
-    _this.formClass = "active";
+    _this.formClass = "active"; //Here ya go
+
+    _this.props.history.listen(function (location, action) {
+      console.log("on route change");
+    });
+
     _this.onSubmit = _this.onSubmit.bind(_assertThisInitialized(_this));
     _this.onChange = _this.onChange.bind(_assertThisInitialized(_this));
     _this.checkUserExists = _this.checkUserExists.bind(_assertThisInitialized(_this));
@@ -38932,19 +38949,14 @@ function (_React$Component) {
     value: function onSubmit(e) {
       e.preventDefault();
       this.props.userSignupRequest(this.state);
-      this.setState({
-        redirect: this.props.needRedirect
-      });
     }
   }, {
     key: "render",
     value: function render() {
       var errors = this.state.errors;
 
-      if (this.state.redirect === true) {
-        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router__WEBPACK_IMPORTED_MODULE_1__["Redirect"], {
-          to: this.props.redirectURL
-        }));
+      if (this.props.needRedirect === true) {
+        window.location.assign('http://github.com');
       } // const options = map(timezones, (val, key) =>
       //   <option key={val} value={val}>{key}</option>
       // );
@@ -39040,7 +39052,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   };
 };
 
-var SignupPage = Object(react_redux__WEBPACK_IMPORTED_MODULE_2__["connect"])(mapStateToProps, mapDispatchToProps)(_SignupForm__WEBPACK_IMPORTED_MODULE_1__["default"]);
+var SignupPage = Object(react_redux__WEBPACK_IMPORTED_MODULE_2__["connect"])(mapStateToProps, mapDispatchToProps)(Object(react_router_dom__WEBPACK_IMPORTED_MODULE_5__["withRouter"])(_SignupForm__WEBPACK_IMPORTED_MODULE_1__["default"]));
 /* harmony default export */ __webpack_exports__["default"] = (SignupPage);
 
 /***/ }),
@@ -39135,10 +39147,17 @@ var Auth = function Auth() {
         redirect: true
       });
 
+    case _actions_action_types__WEBPACK_IMPORTED_MODULE_0__["SIGN_UP_CLEAR"]:
+      return Object.assign({}, state, {
+        action: action.type,
+        payload: null,
+        redirect: false
+      });
+
     case _actions_action_types__WEBPACK_IMPORTED_MODULE_0__["SUGN_UP_SUCCESS"]:
       return Object.assign({}, state, {
         action: action.type,
-        payload: payload,
+        payload: action.payload,
         redirect: true
       });
 

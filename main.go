@@ -129,7 +129,8 @@ func main() {
 	var letterRunes = []rune("1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 	http.HandleFunc("/registration", func(w http.ResponseWriter, r *http.Request) {
-
+		http.Redirect(w, r, "http://www.google.com", 301)
+		return
 		w.Header().Set("Content-Type", "application/json")
 		resData := ResponseData{`https://www.alexedwards.net/blog/golang-response-snippets`}
 		js, err := json.Marshal(resData)

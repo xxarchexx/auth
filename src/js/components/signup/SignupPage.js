@@ -3,7 +3,7 @@ import SignupForm from './SignupForm';
 import { connect } from 'react-redux';
 import { userSignupRequest } from '../../actions/signupActions';
 import PropTypes from 'prop-types';
-import { Router } from 'react-router-dom'
+import { Router, withRouter } from 'react-router-dom'
 
 
 function mapStateToProps(state){
@@ -20,5 +20,5 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-const SignupPage = connect(mapStateToProps, mapDispatchToProps)(SignupForm);
+const SignupPage = connect(mapStateToProps, mapDispatchToProps)(withRouter(SignupForm));
 export default SignupPage;

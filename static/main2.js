@@ -36530,7 +36530,7 @@ module.exports = function(module) {
 /*!****************************************!*\
   !*** ./src/js/actions/action-types.js ***!
   \****************************************/
-/*! exports provided: SIGNUP, LOGIN, SUGN_UP_SUCCESS, LOGIN_SICESS, SUGN_UP_FAILED, LOGIN_FAILED */
+/*! exports provided: SIGNUP, LOGIN, SUGN_UP_SUCCESS, LOGIN_SICESS, SUGN_UP_FAILED, LOGIN_FAILED, SIGN_UP_CLEAR */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -36541,12 +36541,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LOGIN_SICESS", function() { return LOGIN_SICESS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SUGN_UP_FAILED", function() { return SUGN_UP_FAILED; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LOGIN_FAILED", function() { return LOGIN_FAILED; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SIGN_UP_CLEAR", function() { return SIGN_UP_CLEAR; });
 var SIGNUP = 'SUGN_UP';
 var LOGIN = 'LOGIN';
 var SUGN_UP_SUCCESS = 'SUGN_UP_SUCCESS';
 var LOGIN_SICESS = 'LOGIN_SICESS';
 var SUGN_UP_FAILED = 'SUGN_UP_FAILED';
 var LOGIN_FAILED = 'LOGIN_FAILED';
+var SIGN_UP_CLEAR = 'SIGN_UP_CLEAR';
 
 /***/ }),
 
@@ -36879,10 +36881,17 @@ var Auth = function Auth() {
         redirect: true
       });
 
+    case _actions_action_types__WEBPACK_IMPORTED_MODULE_0__["SIGN_UP_CLEAR"]:
+      return Object.assign({}, state, {
+        action: action.type,
+        payload: null,
+        redirect: false
+      });
+
     case _actions_action_types__WEBPACK_IMPORTED_MODULE_0__["SUGN_UP_SUCCESS"]:
       return Object.assign({}, state, {
         action: action.type,
-        payload: payload,
+        payload: action.payload,
         redirect: true
       });
 
