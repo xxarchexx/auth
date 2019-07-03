@@ -14,6 +14,7 @@ class SignupForm extends React.Component {
     super(props);
     this.state = {
       username: '',
+      login: '',
       email: '',
       password: '',
       passwordConfirmation: '',
@@ -62,7 +63,7 @@ class SignupForm extends React.Component {
     const { errors } = this.state;
 
     if(this.props.needRedirect === true){      
-      window.location.assign('http://github.com');
+      window.location.assign('/redirect');
     }
 
     // const options = map(timezones, (val, key) =>
@@ -82,6 +83,16 @@ class SignupForm extends React.Component {
           value={this.state.username}
           field="username"
         />
+
+        <TextFieldGroup
+          error={errors.login}
+          label="Login"
+          onChange={this.onChange}
+          checkUserExists={this.checkUserExists}
+          value={this.state.login}
+          field="login"
+        />
+
 
         <TextFieldGroup
           error={errors.email}

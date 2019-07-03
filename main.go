@@ -1,65 +1,95 @@
 package main
 
+//
+
 import (
-	"auth/database"
-	"auth/mail"
-	"auth/pages"
 	"encoding/json"
 	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
 	"regexp"
 	"time"
 
+	"./pages"
+	"./users"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-session/session"
-	"golang.org/x/crypto/bcrypt"
+
+	"github.com/gorilla/sessions"
+
 	"gopkg.in/oauth2.v3/errors"
 	"gopkg.in/oauth2.v3/generates"
 	"gopkg.in/oauth2.v3/manage"
-	"gopkg.in/oauth2.v3/models"
 	"gopkg.in/oauth2.v3/server"
-	"gopkg.in/oauth2.v3/store"
 )
 
-func registerClients() {
-	clientStore := store.NewClientStore()
-	clientStore.Set("222222", &models.Client{
-		ID:     "222222",
-		Secret: "22222222",
-		Domain: "http://localhost:8000",
-	})
+type clientsStruct struct {
+	sessionid string
+	id        string
+	secret    string
+	domain    string
 }
 
+/* #region Main */
+var (
+	key        = []byte("super-secret-key")
+	store      = sessions.NewCookieStore(key)
+	clientInfo = clientsStruct{sessionid: "test", secret: "test", domain: "http://localhost:8080"}
+)
+
+func registerClients(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, clientInfo.id)
+	session.Values[clientInfo.id] = clientInfo
+
+	// store.Get(clientInfo.id, &models.Client{
+	// 	ID:     clientInfo.id,
+	// 	Secret: clientInfo.secret,
+	// 	Domain: clie,
+	// })
+}
+
+/* #endregion  */
 func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
-	store, err := session.Start(nil, w, r)
+	store, err := store.Get(r, "AuthSession")
+
 	if err != nil {
 		return
 	}
 
-	uid, ok := store.Get("LoggedInUserID")
-	if !ok {
+	if err != nil {
 		if r.Form == nil {
 			r.ParseForm()
 		}
 
-		store.Set("ReturnUri", r.Form)
-		store.Save()
+		store.Values["ReturnUri"] = r.Form
+		store.Save(r, w)
 
 		w.Header().Set("Location", "/login")
 		w.WriteHeader(http.StatusFound)
 		return
 	}
 
-	userID = uid.(string)
-	store.Delete("LoggedInUserID")
-	store.Save()
+	i, ok := store.Values["LoggedInUserID"]
+
+	if !ok {
+		if r.Form == nil {
+			r.ParseForm()
+		}
+
+		store.Values["ReturnUri"] = r.Form
+		store.Save(r, w)
+
+		w.Header().Set("Location", "/login")
+		w.WriteHeader(http.StatusFound)
+		return
+	}
+
 	return
 }
 
+//Responsedata
 type ResponseData struct {
 	RedirectURL string
 }
@@ -83,8 +113,8 @@ func main() {
 	//return
 
 	pages.LoadPage()
-	// database.InitDb()
 	manager := manage.NewDefaultManager()
+
 	manager.SetAuthorizeCodeTokenCfg(manage.DefaultAuthorizeCodeTokenCfg)
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
@@ -95,7 +125,7 @@ func main() {
 	})
 
 	// token store
-	manager.MustTokenStorage(store.NewMemoryTokenStore())
+	manager.MustTokenStorage(store.new())
 
 	// generate jwt access24341 token
 	manager.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte("00000000"), jwt.SigningMethodHS512))
@@ -115,55 +145,66 @@ func main() {
 
 	http.HandleFunc("/confim/", confirmHandler)
 
-	//http.HandleFunc("/login", loginHandler)
+	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/auth", authHandler)
 
-	type Users struct {
-		Username     string `json:"username"`
-		Email        string `json:"email"`
-		Password     string `json:"password"`
-		TempLink     string
-		PasswordHahs string
+	type Data struct {
+		Users users.User
 	}
 
-	var letterRunes = []rune("1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	//var letterRunes = []rune("1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-	http.HandleFunc("/registration", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/redirect", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "http://www.google.com", 301)
 		return
-		w.Header().Set("Content-Type", "application/json")
-		resData := ResponseData{`https://www.alexedwards.net/blog/golang-response-snippets`}
-		js, err := json.Marshal(resData)
-		if err != nil {
-			panic(err)
-		}
-		w.Write(js)
-		return
-		u := Users{}
-		return
-		decoder := json.NewDecoder(r.Body)
-		decoder.Decode(&u)
-		rand.Seed(time.Now().UnixNano())
+	})
 
-		hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.MinCost)
+	http.HandleFunc("/registration", func(w http.ResponseWriter, r *http.Request) {
 
-		if err != nil {
-			panic(err)
-		}
+		// w.Header().Set("Content-Type", "application/json")
+		// resData := ResponseData{`https://www.alexedwards.net/blog/golang-response-snippets`}
+		// js, err := json.Marshal(resData)
+		// if err != nil {
+		// 	panic(err)
+		// }
+		// w.Write(js)
+		// return
 
-		u.PasswordHahs = string(hash)
+		u := users.User{}
+		// uu := &users.User{}
+		// uu = &u
 
-		keyLink := make([]rune, 6)
-		for i := range keyLink {
-			keyLink[i] = letterRunes[rand.Intn(len(letterRunes))]
-		}
+		json.NewDecoder(r.Body).Decode(&u)
 
-		var body = "<p><strong>Спасибо за регистрацию , для завершения регистрации пройдите по ссылке ниже</strong></p><p><a href=\"http://localhost:/configm/%s\">Подтвердите ссылку</a></p>"
+		u.CreateUser()
 
-		body = fmt.Sprintf(body, keyLink)
+		store, _ := session.Start(context, w, r)
 
-		mail.SendMessage(string(u.Email), string(body), "Добрый вечер, подтвердите авторизацию")
-		database.Adduser(string(u.Username), string(u.Username), string(u.Email), string(u.PasswordHahs), string(keyLink))
+		store.Set("userID", u.ID)
+		//state session data
+		// rand.Seed(time.Now().UnixNano())
+
+		// hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.MinCost)
+
+		// if err != nil {
+		// 	panic(err)
+		// }
+
+		// u.PasswordHahs = string(hash)
+
+		// keyLink := make([]rune, 6)
+		// for i := range keyLink {
+		// 	keyLink[i] = letterRunes[rand.Intn(len(letterRunes))]
+		// }
+
+		// var body = "<p><strong>Спасибо за регистрацию , для завершения регистрации пройдите по ссылке ниже</strong></p><p><a href=\"http://localhost:/configm/%s\">Подтвердите ссылку</a></p>"
+
+		// body = fmt.Sprintf(body, keyLink)
+
+		// mail.SendMessage(string(u.Email), string(body), "Добрый вечер, подтвердите авторизацию")
+
+		// uu.
+		// database.Adduser(string(u.Username), string(u.Username), string(u.Email), string(u.PasswordHahs), string(keyLink))
 
 		// if r.Method == "POST" {
 		// 	r.ParseForm()
@@ -175,15 +216,82 @@ func main() {
 		// fmt.Fprintf(w, "%s", "TEST")
 	})
 
+	// http.HandleFunc("/registration", func(w http.ResponseWriter, r *http.Request) {
+	// 	// http.Redirect(w, r, "http://www.google.com", 301)
+	// 	// return
+	// 	w.Header().Set("Content-Type", "application/json")
+	// 	resData := ResponseData{`https://www.alexedwards.net/blog/golang-response-snippets`}
+	// 	js, err := json.Marshal(resData)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	w.Write(js)
+	// 	return
+	// 	u := Users{}
+	// 	return
+	// 	decoder := json.NewDecoder(r.Body)
+	// 	decoder.Decode(&u)
+	// 	rand.Seed(time.Now().UnixNano())
+
+	// 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.MinCost)
+
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+
+	// 	u.PasswordHahs = string(hash)
+
+	// 	keyLink := make([]rune, 6)
+	// 	for i := range keyLink {
+	// 		keyLink[i] = letterRunes[rand.Intn(len(letterRunes))]
+	// 	}
+
+	// 	var body = "<p><strong>Спасибо за регистрацию , для завершения регистрации пройдите по ссылке ниже</strong></p><p><a href=\"http://localhost:/configm/%s\">Подтвердите ссылку</a></p>"
+
+	// 	body = fmt.Sprintf(body, keyLink)
+
+	// 	mail.SendMessage(string(u.Email), string(body), "Добрый вечер, подтвердите авторизацию")
+	// 	database.Adduser(string(u.Username), string(u.Username), string(u.Email), string(u.PasswordHahs), string(keyLink))
+
+	// 	// if r.Method == "POST" {
+	// 	// 	r.ParseForm()
+	// 	// 	c := r.FormValue("email")
+	// 	// 	fmt.Print(c)
+	// 	// }
+
+	// 	// w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	// 	// fmt.Fprintf(w, "%s", "TEST")
+	// })
+
 	http.HandleFunc("/button", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprintf(w, "%s", pages.Pages["button.html"].Body)
 	})
 
-	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "%s", pages.Pages["login.html"].Body)
-	})
+	// func loginHandler(w http.ResponseWriter, r *http.Request) {
+	// 	store, err := session.Start(nil, w, r)
+	// 	if err != nil {
+	// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 		return
+	// 	}
+
+	// 	if r.Method == "POST" {
+	// 		store.Set("LoggedInUserID", "000000")
+	// 		store.Save()
+
+	// 		w.Header().Set("Location", "/auth")
+	// 		w.WriteHeader(http.StatusFound)
+	// 		return
+	// 	}
+	// 	fmt.Fprintf(w, "%s", pages.Pages["login.html"].Body)
+	// 	//outputHTML(w, r, "static/login.html")
+	// }
+
+	// http.HandleFunc("/login", loginHandler)
+	// http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+	// 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	// 	fmt.Fprintf(w, "%s", pages.Pages["login.html"].Body)
+	// })
 
 	http.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
 		store, err := session.Start(nil, w, r)
@@ -235,8 +343,14 @@ func main() {
 	log.Fatal(http.ListenAndServe(":9096", nil))
 }
 
+func test(w http.ResponseWriter, r *http.Request) {
+	log.Print("confimt pattern is not correct")
+}
+
 func confirmHandler(w http.ResponseWriter, r *http.Request) {
 	re1, _ := regexp.Compile(`/confirm/([\d+\w+]*)`)
+	store, _ := session.Start(nil, w, r)
+	println(store)
 	result := re1.FindStringSubmatch(r.URL.Path)
 	cntMatches := len(result)
 	if cntMatches < 2 {
@@ -248,7 +362,7 @@ func confirmHandler(w http.ResponseWriter, r *http.Request) {
 	// for k, v := range result {
 	// 	// fmt.Printf("%d. %s\n", k, v)
 	// }
-	database.ApproveUserdb(result[1])
+	// database.ApproveUserdb(result[1])
 
 	return
 
@@ -260,6 +374,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	log.Println("SloginHandler")
 	if r.Method == "POST" {
 		store.Set("LoggedInUserID", "000000")
@@ -269,8 +384,27 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusFound)
 		return
 	}
-	outputHTML2(w, r) //, "static/login.html")
+
+	fmt.Fprintf(w, "%s", pages.Pages["login.html"].Body)
 }
+
+// func loginHandler(w http.ResponseWriter, r *http.Request) {
+// 	store, err := session.Start(nil, w, r)
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+// 	log.Println("SloginHandler")
+// 	if r.Method == "POST" {
+// 		store.Set("LoggedInUserID", "000000")
+// 		store.Save()
+
+// 		w.Header().Set("Location", "/auth")
+// 		w.WriteHeader(http.StatusFound)
+// 		return
+// 	}
+// 	outputHTML2(w, r) //, "static/login.html")
+// }
 
 func authHandler(w http.ResponseWriter, r *http.Request) {
 	store, err := session.Start(nil, w, r)
@@ -278,8 +412,9 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	log.Println("authHandler")
-	if _, ok := store.Get("LoggedInUserID"); !ok {
+	if _, ok := store.Get("AuthSession"); !ok {
 		w.Header().Set("Location", "/login")
 		w.WriteHeader(http.StatusFound)
 		return

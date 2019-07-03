@@ -38898,6 +38898,7 @@ function (_React$Component) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(SignupForm).call(this, props));
     _this.state = {
       username: '',
+      login: '',
       email: '',
       password: '',
       passwordConfirmation: '',
@@ -38956,7 +38957,7 @@ function (_React$Component) {
       var errors = this.state.errors;
 
       if (this.props.needRedirect === true) {
-        window.location.assign('http://github.com');
+        window.location.assign('/redirect');
       } // const options = map(timezones, (val, key) =>
       //   <option key={val} value={val}>{key}</option>
       // );
@@ -38975,6 +38976,13 @@ function (_React$Component) {
         checkUserExists: this.checkUserExists,
         value: this.state.username,
         field: "username"
+      }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_common_TextFieldGroup__WEBPACK_IMPORTED_MODULE_3__["default"], {
+        error: errors.login,
+        label: "Login",
+        onChange: this.onChange,
+        checkUserExists: this.checkUserExists,
+        value: this.state.login,
+        field: "login"
       }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_common_TextFieldGroup__WEBPACK_IMPORTED_MODULE_3__["default"], {
         error: errors.email,
         label: "Email",

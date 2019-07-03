@@ -1,16 +1,27 @@
-что сделано
-1 научились слать письма по смтп
-2 научились создавать бд постгреса и писать туда запросы
-3 научились создавать реакт приложения
+what is done
+1 learned to send letters by smtp
+2 learned to create postgres bd and write requests there
+3 learned how to create an application reactant
 
-что делаем
-обработать как следует регистрацию пользователя с отправкой на почту и бд
+what we do
+process the user registration as it should be sent to the mail and database
 
-что сделано 
-поправили вид ссылки
-научились парсить запросы
-генерируем временный код
+what is done
+corrected the link type
+learned to parse requests
+generate temporary code
 
-что делаем
-обрабатываем входящие запросы с временным кодом и авторизируем пользователя
+what we do
+process incoming requests with a temporary code and authorize the user
+
+♯PS thoughts are mixing, what have to be done not correspond to what we did!)
+
+What did
+understand react redux store, process redirection after registration user(not full complete reg just main part of registration process)
+
+
+TASK PLAN
+
+1 start write server part and api for social network(manage posts,articles)
+
 
