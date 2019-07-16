@@ -1,73 +1,144 @@
 import React from 'react';
-import TextFieldGroup from '../common/TextFieldGroup';
-import validateInput from '../../shared/validations/login';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+// import {connect} from 'react-redux';
+import axios from 'axios';
+import {Redirect ,withRouter } from 'react-router-dom';
+import './style.css';
 
-class LoginForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      identifier: '',
-      password: '',
-      errors: {},
-      isLoading: false
-    };
+class LoginForm extends React.Component{
+    constructor(props){
+        super(props);
+        this.data = {
+                    login:"",       
+                    password:""                 
+                };  
+       
+        this.state = {
+             formErrors : {            
+                  login : "",         
+                  password: ""         
+                }
+              };
+      }
+    //   shouldComponentUpdate(nextProps, nextState) {
+    //     return false
+    //   }    
+
+  
+/**
+ * @param {Event} e
+ */
+handleChange = e =>{
+    e.preventDefault();
+    const {name,value } = e.target;
+    let formErrors = {...this.state.formErrors};
     
-    this.onSubmit = this.onSubmit.bind(this);
-    this.onChange = this.onChange.bind(this);
-  }
-
-  isValid() {
-    const { errors, isValid } = validateInput(this.state);
-
-    if (!isValid) {
-      this.setState({ errors });
+    switch(name){
+        case "login":   {
+            formErrors.login = value.length < 3 ?"минимальное кол-во символов 3" : "";
+            break;
+             }
+        case "password":      { 
+            formErrors.password = value.length < 5 ?"минимальное кол-во символов 3" : "";
+            break;          
+            }
+        default:
+            break;  
+    }
+    this.data[e.target.name] = e.target.value;
+    this.setState({formErrors});
+    
+    //}, ()=>console.log(this.state) );
+}
+       
+    /**
+     *      
+     * @param {Event} e 
+     */
+    handleSubmit = (e) =>{
+        e.preventDefault();
+        if(this.data.login.length > 3 && this.data.password.length > 3) 
+          axios.post("/login" , this.data).then( (e)=> {  this.setState({needRedirect : true }) })
     }
 
-    return isValid;
-  }
-
-  onSubmit(e) {
-    e.preventDefault();
-    return;
-  }
-
-  onChange(e) {
-    this.setState({ [e.target.name]: e.target.value });
-  }
-
-  render() {
-    const { errors, identifier, password, isLoading } = this.state;
-
-    return (
+   
+  
+    
+    /**
+     * @param {Event} e
+     */
+    lookupChanged = (e) => {
       
-      <form onSubmit={this.onSubmit}>
-        <h1>Login</h1>
+    }
 
-        { errors.form && <div className="alert alert-danger">{errors.form}</div> }
+  
+    render(){
 
-        <TextFieldGroup
-          field="identifier"
-          label="Username / Email"
-          value={identifier}
-          error={errors.identifier}
-          onChange={this.onChange}
-        />
+        let { dispatch, ...data } = this.props;
+        // const actionGetCat =(dispatch)=>{
+        //      return bindActionCreators({getcategoriesForGoods},dispatch)
+        //   }
 
-        <TextFieldGroup
-          field="password"
-          label="Password"
-          value={password}
-          error={errors.password}
-          onChange={this.onChange}
-          type="password"
-        />
+        // let result =  actionGetCat(dispatch).getcategoriesForGoods();
+        
+       
 
-        <div className="form-group"><button className="btn btn-primary btn-lg" disabled={isLoading}>Login</button></div>
-      </form>
-    );
-  }
+        const needRedirect = this.state.needRedirect
+        if(needRedirect){
+            return( 
+                // return( 
+                    // <Redirect push to="/redirect" />
+                    window.location.href = "/redirect" 
+                // this.props.history.push('/redirect')
+                //
+            );
+            //return( window.location.href = "/redirect" );
+        }
+
+        // const  categoires = result;
+
+        return (
+            <React.Fragment>   
+  
+                <form id="form" className="container"  method="POST" role="form" noValidate  onSubmit={this.handleSubmit.bind(this)}>      
+                    <div className="formgrid">                     
+
+                        
+                        <div className="item subcontainer" >     
+                            <label>Логин/email</label>
+                            <div>
+                            <label>{this.state.formErrors.login}</label>   
+                            <input type="text" id="login"             
+                                placeholder="Введите логин или email"
+                                type="text"
+                                name="login"
+                                noValidate
+                                onBlur={this.handleChange}                
+                            />
+                            </div>
+                        </div>
+                     
+                        <div className="item subcontainer" >  
+                            <label>Пароль</label>
+                            <div>
+                                <label>{this.state.formErrors.password}</label>    
+                                <input type="text" id="password"             
+                                placeholder="Пароль"
+                                type="password"
+                                name="password"
+                                noValidate
+                                onBlur={this.handleChange}          />                            
+                             </div>                        
+                        </div>
+
+                        <div className="item subcontainer" >  
+                            <button type="submit">Войти</button>
+                        </div>    
+                     </div>
+                </form>
+            </React.Fragment>
+        );
+    }
 }
 
 export default LoginForm;
+

@@ -1,8 +1,6 @@
-import React from 'react';
-import SignupForm from './SignupForm';
+import SignupForm from './SignupForm'
 import { connect } from 'react-redux';
 import { userSignupRequest } from '../../actions/signupActions';
-import PropTypes from 'prop-types';
 import { Router, withRouter } from 'react-router-dom'
 
 

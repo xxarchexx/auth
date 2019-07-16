@@ -1,136 +1,189 @@
 import React from 'react';
-import { Redirect } from 'react-router'
-import validateInput from '../../shared/validations/signup';
-import TextFieldGroup from '../common/TextFieldGroup';
-import PropTypes from 'prop-types';
-import  axios from 'axios';
-// import {
-//   withRouter
-// } from 'react-router-dom'
+import {connect} from 'react-redux';
+import axios from 'axios';
 
-class SignupForm extends React.Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      username: '',
-      login: '',
-      email: '',
-      password: '',
-      passwordConfirmation: '',
-      timezone: '',
-      errors: {},
-      isLoading: false,
-      invalid: false     
-    }
-    this.redirectUrl = ""
-    this.formClass = "active"
-    //Here ya go
-    this.props.history.listen((location, action) => {
-      console.log("on route change");
-    });
-    this.onSubmit = this.onSubmit.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.checkUserExists = this.checkUserExists.bind(this);
-  }
+class SignupForm extends React.Component{
+    constructor(props){
+        super(props);
+        this.data = {
+          username:"",
+          login:"",
+          email:"",
+          password:"",
+          confirmpassword:""
+                };  
+       
+        this.state = {
+            formErrors : {
+             login : "",
+             email: "",
+             password: "",
+             username: "",
+             confirmpassword : ""
+                }
+            }
+      }
+
   
-  onChange(e) {
-    this.setState({ [e.target.name]: e.target.value });
-  }
-
-  isValid() {
-    const { errors, isValid } = validateInput(this.state);
-
-    if (!isValid) {
-      this.setState({ errors });
+/**
+ * @param {Event} e
+ */
+handleChange = e =>{
+    e.preventDefault();
+    const {name,value } = e.target;
+    let formErrors = {...this.state.formErrors};
+    
+    switch(name){
+        case "username":
+            formErrors.username = value.length < 3 ?"минимальное кол-во символов 3" : "";
+            break;
+        case "password":
+            formErrors.password = value.length < 5 ?"минимальное кол-во символов 3" : "";
+            break;
+          case "confirmPassword":
+            if(value != this.state.password)
+               formErrors.confirmpassword= "Пароль не совпадает" 
+            else
+            formErrors.confirmpassword = "";
+            break;
+        case "email":
+            {              
+            formErrors.email = value.length < 3 ?"минимальное кол-во символов 3" : "";
+            
+            break;
+            }
+        default:
+            break;  
     }
 
-    return isValid;
-  }
-
-  checkUserExists(e) { 
-       return    
+    this.data[name] = value;
+    this.setState({formErrors});
+    
+    //}, ()=>console.log(this.state) );
+}
+       
+    /**
+     *      
+     * @param {Event} e 
+     */
+    handleSubmit = (e) =>{
+        e.preventDefault();
+        axios.post("/registration" , this.data).then( (e)=> {  this.setState({needRedirect : true }) })
     }
+
+    /**
+     * @param {Event} e
+     */
+    lookupChanged = (e) => {
+      
+    }
+
+    render(){
+
+        let { dispatch, ...data } = this.props;
+        // const actionGetCat =(dispatch)=>{
+        //      return bindActionCreators({getcategoriesForGoods},dispatch)
+        //   }
+
+        // let result =  actionGetCat(dispatch).getcategoriesForGoods();
+        
+       
+
+       
+        const needRedirect = this.state.needRedirect
+        if(needRedirect){
+            return( window.location.href = "/redirect" );
+        }
+
+        // const  categoires = result;
+
+        return (
+            <React.Fragment>   
   
+                <form id="form" className="container"  method="POST" role="form" noValidate  onSubmit={this.handleSubmit.bind(this)}>      
+                    <div class="formgrid">                     
 
-  onSubmit(e) {
-    e.preventDefault();     
-      this.props.userSignupRequest(this.state)      
+                        
+                        <div className="item subcontainer" >     
+                            <label>Имя пользователя</label>
+                            <div>
+                            <label>{this.state.formErrors.username}</label>   
+                            <input type="text" id="username"             
+                                placeholder="Имя пользователя"
+                                type="text"
+                                name="username"
+                                noValidate
+                                onBlur={this.handleChange}                
+                            />
+                            </div>
+                        </div>
+
+                        <div className="item subcontainer" >  
+                            <label>Логин</label>
+                            <div>
+                                <label>{this.state.formErrors.login}</label>   
+                                <input type="text" id="login"             
+                                placeholder="Логин"
+                                type="text"
+                                name="login"
+                                noValidate
+                                onBlur={this.handleChange}          
+                        />
+
+                        </div>
+                        </div>
+
+                        <div className="item subcontainer" >  
+                            <label>email</label>
+                            <div>
+                                <label>{this.state.formErrors.email}</label>   
+                                <input type="text" id="email"             
+                                placeholder="EMail"
+                                type="text"
+                                name="email"
+                                noValidate
+                                onBlur={this.handleChange}          
+                        />
+
+                        </div>
+                        </div>
+                        <div className="item subcontainer" >  
+                            <label>Пароль</label>
+                            <div>
+                                <label>{this.state.formErrors.password}</label>    
+                                <input type="text" id="password"             
+                                placeholder="Пароль"
+                                type="password"
+                                name="password"
+                                noValidate
+                                onBlur={this.handleChange}          />                            
+                             </div>                        
+                        </div>
+
+                        <div className="item subcontainer" >  
+                            <label>Подтверждение пароля</label>
+                            <div>
+                            <label>{this.state.formErrors.confirmpassword}</label>    
+                                    </div><input type="text" id="confirmpassword"             
+                                placeholder="Подтверждение пароля"
+                                type="password"
+                                name="confirmPassword"
+                                noValidate
+                                onBlur={this.handleChange}          
+                        />
+
+                            
+                        </div>
+                        <div className="item subcontainer" >  
+                            <button type="submit">Зарегестрировать</button>
+                        </div>    
+                     </div>
+                </form>
+            </React.Fragment>
+        );
     }
-
-  render() {   
-   
-    const { errors } = this.state;
-
-    if(this.props.needRedirect === true){      
-      window.location.assign('/redirect');
-    }
-
-    // const options = map(timezones, (val, key) =>
-    //   <option key={val} value={val}>{key}</option>
-    // );
-    return (
-      <div className="row">
-        <div className="col-md-4 col-md-offset-4">
-      <form onSubmit={this.onSubmit} >
-        <h1>Join our community!</h1>
-
-        <TextFieldGroup
-          error={errors.username}
-          label="Username"
-          onChange={this.onChange}
-          checkUserExists={this.checkUserExists}
-          value={this.state.username}
-          field="username"
-        />
-
-        <TextFieldGroup
-          error={errors.login}
-          label="Login"
-          onChange={this.onChange}
-          checkUserExists={this.checkUserExists}
-          value={this.state.login}
-          field="login"
-        />
-
-
-        <TextFieldGroup
-          error={errors.email}
-          label="Email"
-          onChange={this.onChange}
-          checkUserExists={this.checkUserExists}
-          value={this.state.email}
-          field="email"
-        />
-
-        <TextFieldGroup
-          error={errors.password}
-          label="Password"
-          onChange={this.onChange}
-          value={this.state.password}
-          field="password"
-          type="password"
-        />
-
-        <TextFieldGroup
-          error={errors.passwordConfirmation}
-          label="Password Confirmation"
-          onChange={this.onChange}
-          value={this.state.passwordConfirmation}
-          field="passwordConfirmation"
-          type="password"
-        />
-
-        <div className="form-group">
-          <button disabled={this.state.isLoading || this.state.invalid} className="btn btn-primary btn-lg">
-            Sign up
-          </button>
-        </div>
-      </form>
-      </div>
-      </div>
-    );
-  }
 }
 
-export default SignupForm;
+export default connect(null,null)(SignupForm);
+
