@@ -17,16 +17,11 @@ type message struct {
 //SendMessage smpt message
 func SendMessage(to, body, subject string) {
 	m := gomail.NewMessage()
-	m.SetHeader("From", "22@gmail.com")
-	m.SetHeader("To", "22@mail.ru")
-	// m.SetAddressHeader("Cc", "")
+	m.SetHeader("From", "testgmail.com")
+	m.SetHeader("To", "test@mail.ru")
 	m.SetBody("text/html", body)
-	d := gomail.NewDialer("smtp.11.com", 25, "1@gmail.com", "1@93dy")
-	err := d.DialAndSend(m)2
+	d := gomail.NewDialer("smtp.test.com", 25, "tests@gmail.com", "test")
+	err := d.DialAndSend(m)
 	if err != nil {
 		panic(err)
 	}
-}
-
-// msg := message{}
-// msg.client =
