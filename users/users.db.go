@@ -12,9 +12,7 @@ var db *sql.DB
 
 //ApproveUser db//
 func ApproveUserdb(confimCode string) bool {
-	_, err := db.Exec(`insert into users (name,password,email,approve_date) 
-	select name,password,email,current_date as approve_date from users_temp
-	where temp_link = $1 `, confimCode)
+	_, err := db.Exec(`c `, confimCode)
 
 	if err != nil {
 		panic(err)
@@ -125,6 +123,6 @@ func dbConf() map[string]string {
 	conf[dbport] = "5432"
 	conf[dbuser] = "docker"
 	conf[dbpass] = "docker"
-	conf[dbname] = "auth_service"
+	conf[dbname] = "auth_server"
 	return conf
 }

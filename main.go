@@ -14,10 +14,10 @@ import (
 	"strings"
 	"time"
 
-	"./pages"
-	"./users"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/sessions"
+	"github.com/xxarchexx/auth/pages"
+	"github.com/xxarchexx/auth/users"
 	"gopkg.in/oauth2.v3"
 	"gopkg.in/oauth2.v3/errors"
 	"gopkg.in/oauth2.v3/generates"
