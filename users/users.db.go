@@ -121,8 +121,8 @@ func dbConf() map[string]string {
 
 	conf[dbhost] = "localhost"
 	conf[dbport] = "5432"
-	conf[dbuser] = "docker"
-	conf[dbpass] = "docker"
-	conf[dbname] = "auth_server"
+	conf[dbuser] = "admin"
+	conf[dbpass] = "12345"
+	conf[dbname] = "AUTH_SERVICE"
 	return conf
 }

@@ -18,11 +18,7 @@ class LoginForm extends React.Component{
                   password: ""         
                 }
               };
-      }
-    //   shouldComponentUpdate(nextProps, nextState) {
-    //     return false
-    //   }    
-
+      }    
   
 /**
  * @param {Event} e
@@ -34,20 +30,18 @@ handleChange = e =>{
     
     switch(name){
         case "login":   {
-            formErrors.login = value.length < 3 ?"минимальное кол-во символов 3" : "";
+            formErrors.login = value.length < 3 ?"requried 3 chars !" : "";
             break;
              }
         case "password":      { 
-            formErrors.password = value.length < 5 ?"минимальное кол-во символов 3" : "";
+            formErrors.password = value.length < 5 ?"requried 5 chars !" : "";
             break;          
             }
         default:
             break;  
     }
     this.data[e.target.name] = e.target.value;
-    this.setState({formErrors});
-    
-    //}, ()=>console.log(this.state) );
+    this.setState({formErrors});   
 }
        
     /**
@@ -58,17 +52,10 @@ handleChange = e =>{
         e.preventDefault();
         if(this.data.login.length > 3 && this.data.password.length > 3) 
           axios.post("/login" , this.data).then( (e)=> {  this.setState({needRedirect : true }) })
-    }
-
-   
+    } 
   
     
-    /**
-     * @param {Event} e
-     */
-    lookupChanged = (e) => {
-      
-    }
+   
 
   
     render(){
@@ -84,30 +71,23 @@ handleChange = e =>{
 
         const needRedirect = this.state.needRedirect
         if(needRedirect){
-            return( 
-                // return( 
-                    // <Redirect push to="/redirect" />
-                    window.location.href = "/redirect" 
-                // this.props.history.push('/redirect')
-                //
+            return(                 
+                window.location.href = "/redirect"                
             );
-            //return( window.location.href = "/redirect" );
-        }
-
-        // const  categoires = result;
+            }
 
         return (
             <React.Fragment>   
   
                 <form id="form" className="container"  method="POST" role="form" noValidate  onSubmit={this.handleSubmit.bind(this)}>      
-                    <div className="formgrid">                     
+                    <div className="formgrid flex">                   
 
                         
-                        <div className="item subcontainer" >     
+                        <div className="item subcontainer flex" >     
                             <label>Логин/email</label>
                             <div>
-                            <label>{this.state.formErrors.login}</label>   
-                            <input type="text" id="login"             
+                            <label className="flex">{this.state.formErrors.login}</label>   
+                            <input className="flex" type="text" id="login"             
                                 placeholder="Введите логин или email"
                                 type="text"
                                 name="login"
@@ -120,8 +100,8 @@ handleChange = e =>{
                         <div className="item subcontainer" >  
                             <label>Пароль</label>
                             <div>
-                                <label>{this.state.formErrors.password}</label>    
-                                <input type="text" id="password"             
+                                <label className="flex">{this.state.formErrors.password}</label>    
+                                <input className="flex" type="text" id="password"             
                                 placeholder="Пароль"
                                 type="password"
                                 name="password"
@@ -140,5 +120,5 @@ handleChange = e =>{
     }
 }
 
-export default LoginForm;
 
+export default LoginForm;

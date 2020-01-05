@@ -68,7 +68,7 @@ func main() {
 	clientStore.Set("222222", &models.Client{
 		ID:     "222222",
 		Secret: "22222222",
-		Domain: "http://localhost:8080",
+		Domain: "http://localhost:3003",
 	})
 	manager.MapClientStorage(clientStore)
 
@@ -97,11 +97,10 @@ func main() {
 	//var letterRunes = []rune("1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 	http.HandleFunc("/redirect", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Print("test test test")
+
 		w.Header().Set("Location", "/auth")
 		w.WriteHeader(http.StatusFound)
-		// store, _ := sessionStore.Get(r, "AuthSession")
-		// fmt.Print(store)
+
 		return
 	})
 
@@ -119,7 +118,7 @@ func main() {
 		u.CreateUser()
 
 		st.Values["LoggedInUserID"] = strconv.FormatUint(uint64(u.ID), 10)
-		fmt.Print("LoggedInUserID")
+
 		logins[u.ID] = u.Login
 
 		st.Save(r, w)
@@ -129,7 +128,7 @@ func main() {
 
 	http.HandleFunc("/button", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprintf(w, "%s", pages.Pages["button.html"].Body)
+
 	})
 
 	http.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
@@ -153,8 +152,7 @@ func main() {
 		}
 
 		r.Form = form
-		fmt.Print("authorize")
-		fmt.Print(st.Values["LoggedInUserID"])
+
 		st.Save(r, w)
 
 		err = auth.Server.HandleAuthorizeRequest(w, r)
@@ -317,9 +315,6 @@ func (auth *OauthServer) GenerateAccessToken(gt oauth2.GrantType, tgr *oauth2.To
 	createAt := time.Now()
 	ti.SetAccessCreateAt(createAt)
 
-	// set access token expires
-	//if gt.(string) ==oauth2.AuthorizationCode
-
 	var gcfg *manage.Config = &manage.Config{AccessTokenExp: time.Hour * 2, RefreshTokenExp: time.Hour * 24 * 3, IsGenerateRefresh: true}
 
 	if gt == oauth2.AuthorizationCode {
@@ -415,21 +410,6 @@ func test(w http.ResponseWriter, r *http.Request) {
 	log.Print("confimt pattern is not correct")
 }
 
-// func confirmHandler(w http.ResponseWriter, r *http.Request) {
-// 	re1, _ := regexp.Compile(`/confirm/([\d+\w+]*)`)
-// 	store, _ := session.Start(nil, w, r)
-// 	println(store)
-// 	result := re1.FindStringSubmatch(r.URL.Path)
-// 	cntMatches := len(result)
-// 	if cntMatches < 2 {
-// 		log.Print("confimt pattern is not correct")
-// 		return
-// 	}
-
-// 	fmt.Printf(result[1])
-// 	return
-// }
-
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		st, err := sessionStore.Get(r, "AuthSession")
@@ -462,20 +442,13 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func authHandler(w http.ResponseWriter, r *http.Request) {
-	store, err := sessionStore.Get(r, "AuthSession")
+	_, err := sessionStore.Get(r, "AuthSession")
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	store.Values["LoggedInUserID"] = "2"
-	// ok := store.Values["LoggedInUserID"]
-	// if _, try := ok.(string); !try {
-	// 	w.Header().Set("Location", "/login")
-	// 	w.WriteHeader(http.StatusFound)
-	// 	fmt.Printf("in userAuthoauthHandlerrizeHandler after Location /login")
-	// 	return
-	// }
+	//store.Values["LoggedInUserID"] = "2"
 
 	outputHTML(w, r, "static/auth.html")
 }
@@ -564,13 +537,10 @@ func (srv *OauthServer) tokenError(w http.ResponseWriter, err error) (uerr error
 func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
 	store, _ := sessionStore.Get(r, "AuthSession")
 
-	fmt.Printf("in userAuthorizeHandler after 	store, _ := sessionStore.Get")
-	//uid, ok := store.Values["AuthSession"]
-
 	uid, ok := store.Values["LoggedInUserID"]
 
 	if !ok {
-		fmt.Printf("in userAuthorizeHandler after 	flashes ==0")
+
 		if r.Form == nil {
 			r.ParseForm()
 		}
@@ -581,14 +551,13 @@ func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 
 		w.Header().Set("Location", "/login")
 		w.WriteHeader(http.StatusFound)
-		fmt.Printf("in userAuthorizeHandler after Location /login")
 		return
 	}
 
 	data, ok := uid.(string)
 
 	if !ok {
-		fmt.Printf("in userAuthorizeHandler after 	flashes ==0")
+
 		if r.Form == nil {
 			r.ParseForm()
 		}
@@ -599,7 +568,7 @@ func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 
 		w.Header().Set("Location", "/login")
 		w.WriteHeader(http.StatusFound)
-		fmt.Printf("in userAuthorizeHandler after Location /login")
+
 		return
 	}
 
@@ -628,8 +597,21 @@ func (auth *OauthServer) getAuthorizationCode(code string) (info oauth2.TokenInf
 // Token based on the UUID generated token
 func (auth *OauthServer) TokenSign(data *oauth2.GenerateBasic, isGenRefresh bool) (access, refresh string, err error) {
 	a := *auth.gen
-	claims := &generates.JWTAccessClaims{
-		StandardClaims: jwt.StandardClaims{
+
+	type MyCustomClaims struct {
+		Userid string `json:"userid"`
+		jwt.StandardClaims
+	}
+
+	// var standartClaims = jwt.StandardClaims{
+	// 	Audience:  data.Client.GetID(),
+	// 	Subject:   data.UserID,
+	// 	ExpiresAt: data.TokenInfo.GetAccessCreateAt().Add(data.TokenInfo.GetAccessExpiresIn()).Unix(),
+	// }
+
+	claims := MyCustomClaims{
+		string(data.UserID),
+		jwt.StandardClaims{
 			Audience:  data.Client.GetID(),
 			Subject:   data.UserID,
 			ExpiresAt: data.TokenInfo.GetAccessCreateAt().Add(data.TokenInfo.GetAccessExpiresIn()).Unix(),
@@ -644,8 +626,7 @@ func (auth *OauthServer) TokenSign(data *oauth2.GenerateBasic, isGenRefresh bool
 	wd := uint(uid)
 
 	login := logins[wd]
-	claims.Issuer = login
-
+	fmt.Print(login)
 	token := jwt.NewWithClaims(a.SignedMethod, claims)
 	var key interface{}
 

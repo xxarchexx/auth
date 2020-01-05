@@ -2,3 +2,9 @@ form {
     width: 500px;
     margin:0 auto;
 }
+
+  .flex{
+          align-self: flex-start;
+    display: flex;
+    flex-flow: column;
+  }

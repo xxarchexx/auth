@@ -1,40 +1,43 @@
-var path = require('path')
-const webpack = require('webpack');
+var path = require("path");
+const webpack = require("webpack");
 
+// eslint-disable-next-line no-unused-vars
 const HtmlWebPackPlugin = require("html-webpack-plugin");
-module.exports = { 
-  devServer: {
-   
-   
-    contentBase: path.join(__dirname, 'src/js'),    
-    compress: false,
-    port: 9000
-  },
-  devtool: 'source-map',
+module.exports = {  
+  devtool: "source-map",
   entry: {
-    main: './src/js/index.js',   
-    main2: './src/js/index2.js'    
+    // vendor: ["@material-ui/styles"],
+    main: path.join(__dirname, "src/js/index.js")
   },
-  plugins:[
-    new webpack.LoaderOptionsPlugin({ debug: true  }),
-  ],
-  output:{    
-    filename:  '[name].js',
-    path: __dirname + '/static',
-    publicPath: '/static/'
-   },
+  plugins: [new webpack.LoaderOptionsPlugin({ debug: true })],
+  output: {
+    // filename: "[name].js",
+    filename: "main.js",
+    path: __dirname + "/static",
+    publicPath: "/static/"
+  },
+
   module: {
     rules: [
-      { test: /\.tsx?$/, loader: "awesome-typescript-loader" },
+      // {
+      //   test: /\.ts(x?)$/,
+      //   exclude: /node_modules/,
+      //   use: [
+      //     {
+      //       loader: "ts-loader"
+      //     }
+      //   ]
+      // },
+      // All
       {
         test: /\.(js|jsx)$/,
-        exclude: /node_modules/, 
-        
+        exclude: /node_modules/,
+
         use: {
           loader: "babel-loader",
-          query:{
+          query: {
             sourceMap: true
-          },
+          }
         }
       },
       {
@@ -44,11 +47,12 @@ module.exports = {
             loader: "html-loader"
           }
         ]
-      }, 
+      },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
-      },
+
+        use: ["style-loader", "css-loader"]
+      }
     ]
-  } 
+  }
 };

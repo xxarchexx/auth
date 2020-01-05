@@ -11,13 +11,12 @@ import Greetings from './components/Greetings';
 import SignupPage from './components/signup/SignupPage';
 import LoginSignUpLinkPage from './rootContainers/LoginSignUpLinkPage';
 
-
+const devTools = process.env.NODE_ENV === 'development' ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__() : null;
 
 const store = createStore(
   rootReducer,
   compose(
-    applyMiddleware(thunk),
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+    applyMiddleware(thunk)    
   )
 );
 
