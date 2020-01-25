@@ -13,7 +13,8 @@ type Page struct {
 }
 
 var (
-	Pages map[string]Page
+	Pages    map[string]Page
+	PageDist map[string]Page
 )
 
 //SavePage s
@@ -37,4 +38,18 @@ func LoadPage() {
 		p := Page{Title: f.Name(), Body: b}
 		Pages[f.Name()] = p
 	}
+}
+
+//LoadDistPage
+func LoadDistPageByName(filename string) {
+	PageDist = make(map[string]Page)
+
+	b, err2 := ioutil.ReadFile("dist/" + filename)
+
+	if err2 != nil {
+		fmt.Printf("%v\n err", err2)
+	}
+
+	p := Page{Title: filename, Body: b}
+	PageDist[filename] = p
 }

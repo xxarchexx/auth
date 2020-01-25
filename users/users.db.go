@@ -2,7 +2,6 @@ package users
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -28,7 +27,7 @@ func ApproveUserdb(confimCode string) bool {
 }
 
 func verifyUserByPassword(login string) (id uint, dbpasword string, err error) {
-	err = initDb()
+
 	row := db.QueryRow("Select id,password from users where login = $1", login)
 	row.Scan(&id, &dbpasword)
 	return
@@ -36,11 +35,6 @@ func verifyUserByPassword(login string) (id uint, dbpasword string, err error) {
 
 //Adduser with check if exists into temp table
 func addToDb(name, login, password, email string) (userid uint, err error) {
-	err = initDb()
-
-	if err != nil {
-		return 0, err
-	}
 
 	defer db.Close()
 	//u := User{Name: name, login: login, email: email, password: password}
@@ -75,54 +69,4 @@ func addToDb(name, login, password, email string) (userid uint, err error) {
 
 	row.Scan(&userid)
 	return
-}
-
-const (
-	dbhost = "DBHOST"
-	dbport = "DBPORT"
-	dbuser = "DBUSER"
-	dbpass = "DBPASS"
-	dbname = "DBNAME"
-)
-
-func initDb() (err error) {
-	config := dbConf()
-
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		config[dbhost], config[dbport],
-		config[dbuser], config[dbpass], config[dbname])
-
-	db, err = sql.Open("postgres", psqlInfo)
-
-	if err != nil {
-		panic(err)
-		return err
-	}
-
-	err = db.Ping()
-
-	if err != nil {
-		panic(err)
-		return err
-	}
-
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("Successfully connected!")
-	return
-}
-
-func dbConf() map[string]string {
-	conf := make(map[string]string)
-
-	conf[dbhost] = "localhost"
-	conf[dbport] = "5432"
-	conf[dbuser] = "admin"
-	conf[dbpass] = "12345"
-	conf[dbname] = "AUTH_SERVICE"
-	return conf
 }

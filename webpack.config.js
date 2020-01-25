@@ -1,63 +1,216 @@
-var path = require("path");
-const webpack = require("webpack");
+const path = require("path");
+const HTMLWebpackPlugin = require("html-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const OptimizeCssAssetWebpackPlugin = require("optimize-css-assets-webpack-plugin");
+const TerserWebpackPlugin = require("terser-webpack-plugin");
+const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
-// eslint-disable-next-line no-unused-vars
+const isDev = process.env.NODE_ENV === "development";
+const isProd = !isDev;
 
-module.exports = {  
-  
-  
-  devtool: "source-map",
-  entry: {
-    // vendor: ["@material-ui/styles"],
-    main: path.join(__dirname, "src/js/index.js")
-  },
-  // plugins: [new webpack.LoaderOptionsPlugin({ debug: true })],
-  output: {
-    // filename: "[name].js",
-    filename: "main.js",
-    path: __dirname + "/static",
-    publicPath: "/static/"
-  },
+const optimization = () => {
+  const config = {
+    splitChunks: {
+      chunks: "all"
+    }
+  };
 
-  module: {
-    rules: [      
-      {
-        test: /\.svg/,
-        use: {
-            loader: 'svg-url-loader',
-            options: {}
-        }
+  if (isProd) {
+    config.minimizer = [
+      new OptimizeCssAssetWebpackPlugin(),
+      new TerserWebpackPlugin()
+    ];
+  }
+
+  return config;
+};
+
+const filename = ext => (isDev ? `[name].${ext}` : `[name].[hash].${ext}`);
+
+const cssLoaders = extra => {
+  const loaders = [
+    {
+      loader: MiniCssExtractPlugin.loader,
+      options: {
+        hmr: isDev,
+        reloadAll: true
+      }
     },
-       {
-        test: /\.s[ac]ss$/i,
-        use: [
-          // Creates `style` nodes from JS strings
-          'style-loader',
-          // Translates CSS into CommonJS
-          'css-loader',
-          // Compiles Sass to CSS
-          'sass-loader',
-        ],
-      },
-      {
-        test: /\.css$/,
-        loader: 'css-loader'        
-      },
-      {
-        test: /\.css$/,
-        loader: 'style-loader'
-      },
-      {
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
+    "css-loader"
+  ];
 
-        use: {
-          loader: "babel-loader",
-          query: {
-            sourceMap: true
-          }
+  if (extra) {
+    loaders.push(extra);
+  }
+
+  return loaders;
+};
+
+const babelOptions = preset => {
+  const opts = {
+    presets: ["@babel/preset-env"],
+    plugins: [
+      "@babel/plugin-transform-runtime",
+      "@babel/plugin-proposal-class-properties"
+    ]
+  };
+
+  if (preset) {
+    opts.presets.push(preset);
+  }
+
+  return opts;
+};
+
+const jsLoaders = () => {
+  const loaders = [
+    {
+      loader: "babel-loader",
+      options: babelOptions()
+    }
+  ];
+
+  if (isDev) {
+    loaders.push("eslint-loader");
+  }
+
+  return loaders;
+};
+
+const plugins = () => {
+  const base = [
+    new HTMLWebpackPlugin({
+      template: path.resolve(__dirname, "template/index.html"),
+      filename: path.resolve(__dirname, "views/index.html"),
+      minify: {
+        collapseWhitespace: isProd
+      }
+    }),
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, "src/favicon.ico"),
+        to: path.resolve(__dirname, "dist")
+      },
+      {
+        from: path.resolve(__dirname, "dist"),
+        to: path.resolve(__dirname, "static")
+      }
+      // {
+      //   from: path.resolve(__dirname, 'dist/index.html'),
+      //   to: path.resolve(__dirname, 'views/index.html'),
+      //   toType: 'file'
+      // }
+    ]),
+    new MiniCssExtractPlugin({
+      filename: filename("css")
+    }),
+    new CleanWebpackPlugin(),
+    new CleanWebpackPlugin({
+      //
+      // default: []
+      cleanAfterEveryBuildPatterns: ["static/**.*"],
+
+      // Allow clean patterns outside of process.cwd()
+      //
+      // requires dry option to be explicitly set
+      //
+      // default: false
+      dry:true,
+      dangerouslyAllowCleanPatternsOutsideProject: true
+    })
+  ];
+
+  // if (isProd) {
+  //   base.push(new BundleAnalyzerPlugin())
+  // }
+
+  return base;
+};
+
+module.exports = {
+  mode: "development",
+  entry: {
+    main: ["@babel/polyfill", "./src/js/index.jsx"]
+  },
+  output: {
+    publicPath: "/dist/",
+    filename: filename("js"),
+    path: path.resolve(__dirname, "dist")
+  },
+  resolve: {
+    extensions: [".js", ".jsx", ".json", ".png"],
+    alias: {
+      "@": path.resolve(__dirname, "src/js")
+    }
+  },
+  optimization: optimization(),
+  devServer: {
+    port: 4200,
+    hot: isDev
+  },
+
+  devtool: "source-map",
+  plugins: plugins(),
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: cssLoaders()
+      },
+      {
+        test: /\.less$/,
+        use: cssLoaders("less-loader")
+      },
+      {
+        test: /\.s[ac]ss$/,
+        use: cssLoaders("sass-loader")
+      },
+      {
+        test: /\.svg$/,
+        loader: "file-loader",
+        options: {
+          name: "[name].[contenthash].[ext]"
         }
-      }     
+      },
+      {
+        test: /\.(png|jpg|gif)$/,
+        use: ["file-loader"]
+      },
+      {
+        test: /\.(ttf|woff|woff2|eot)$/,
+        use: ["file-loader"]
+      },
+      {
+        test: /\.xml$/,
+        use: ["xml-loader"]
+      },
+      {
+        test: /\.csv$/,
+        use: ["csv-loader"]
+      },
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: jsLoaders()
+      },
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        loader: {
+          loader: "babel-loader",
+          options: babelOptions("@babel/preset-typescript")
+        }
+      },
+      {
+        test: /\.jsx$/,
+        exclude: /node_modules/,
+        loader: {
+          loader: "babel-loader",
+          options: babelOptions("@babel/preset-react")
+        }
+      }
     ]
   }
 };

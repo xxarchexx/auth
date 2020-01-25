@@ -73,8 +73,10 @@ func main() {
 	manager.MapClientStorage(clientStore)
 
 	manager.SetAuthorizeCodeTokenCfg(manage.DefaultAuthorizeCodeTokenCfg)
-	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	fs := http.FileServer(http.Dir("dist"))
+
+	// http.Handle("/static/", http.StripPrefix("/static/", fs))
+	http.Handle("/dist/", http.StripPrefix("/dist/", fs))
 
 	auth.Server = server.NewServer(server.NewConfig(), manager)
 
@@ -92,7 +94,10 @@ func main() {
 	// http.HandleFunc("/confim/", confirmHandler)
 
 	http.HandleFunc("/login", loginHandler)
+	// http.HandleFunc("/facebooklogin", facebookLoginHandler)
 	http.HandleFunc("/auth", authHandler)
+	http.HandleFunc("/facebooklogin", handleFacebookLogin)
+	http.HandleFunc("/oauth2Callback", handleFacebookCallback)
 
 	//var letterRunes = []rune("1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
@@ -249,6 +254,10 @@ func main() {
 		return
 	})
 
+	http.HandleFunc("/test2", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "<h1>test</h1>")
+	})
+
 	http.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
 		token, err := auth.Server.ValidationBearerToken(r)
 		if err != nil {
@@ -267,8 +276,10 @@ func main() {
 	})
 
 	log.Println("Server is running at 9096 port.")
-	log.Fatal(http.ListenAndServe(":9096", nil))
-
+	err = http.ListenAndServe(":9096", nil)
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
 }
 
 // GenerateAccessToken generate the access token
@@ -438,7 +449,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%s", pages.Pages["login.html"].Body)
+	fmt.Fprintf(w, "%s", pages.Pages["index.html"].Body)
 }
 
 func authHandler(w http.ResponseWriter, r *http.Request) {
@@ -450,7 +461,7 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//store.Values["LoggedInUserID"] = "2"
 
-	outputHTML(w, r, "static/auth.html")
+	outputHTML(w, r, "views/auth.html")
 }
 
 func outputHTML2(w http.ResponseWriter, req *http.Request) {

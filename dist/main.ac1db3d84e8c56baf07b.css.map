@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack:///./src/js/styles/css/test.scss"],"names":[],"mappings":"AAAA;AACA;AACA;AACA,iBAAiB","file":"main.ac1db3d84e8c56baf07b.css","sourcesContent":[".material-icons.MuiIcon-root img {\n  width: 1em;\n  height: 1em;\n  display: block; }\n"],"sourceRoot":""}

@@ -1,0 +1,34 @@
+package main
+
+type OauthServer struct {
+	Server     *server.Server
+	gen        *generates.JWTAccessGenerate
+	tokenStore oauth2.TokenStore
+}
+
+type RetUri struct {
+	Key   string
+	Value url.Values
+}
+
+
+var (
+	auth         OauthServer
+	sessionStore = sessions.NewCookieStore([]byte("tets"))
+	keyData, _   = ioutil.ReadFile("keys/id_rsa_test")
+	gen          generates.JWTAccessGenerate
+)
+
+func init() {
+	logins = make(map[uint]string)
+	auth := OauthServer{}
+
+	pages.LoadPage()
+	gob.Register(RetUri{})
+	manager := manage.NewDefaultManager()
+	manager.SetAuthorizeCodeTokenCfg(manage.DefaultAuthorizeCodeTokenCfg)
+	auth.gen = generates.NewJWTAccessGenerate(keyData, jwt.GetSigningMethod("RS256"))
+	var err error
+	// token store
+	auth.tokenStore, err = store.NewMemoryTokenStore()
+	manager.MustTokenStorage(auth.tokenStore, err)
