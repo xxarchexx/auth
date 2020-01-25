@@ -3,5 +3,7 @@ github.com/
 golang.org/
 auth
 node_modules/
+static/*
+dist/*
 
 
