@@ -4,10 +4,17 @@ import (
 	"github.com/xxarchexx/auth/models"
 )
 
-func GetClients() {
-
+func GetClients() []models.AuthApps {
+	return AuthApps
 }
 
-func FillClients() ([]models.AuthApps, error) {
-	return fillClientsFromDb()
+var AuthApps []models.AuthApps
+
+func FillClients() error {
+	res, err := fillClientsFromDb()
+	if err != nil {
+		return err
+	}
+	AuthApps = res
+	return nil
 }
