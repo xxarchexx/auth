@@ -88,6 +88,8 @@ const plugins = () => {
         collapseWhitespace: isProd
       }
     }),
+  
+  
     new CopyWebpackPlugin([
       {
         from: path.resolve(__dirname, "src/favicon.ico"),
@@ -106,20 +108,8 @@ const plugins = () => {
     new MiniCssExtractPlugin({
       filename: filename("css")
     }),
-    new CleanWebpackPlugin(),
-    new CleanWebpackPlugin({
-      //
-      // default: []
-      cleanAfterEveryBuildPatterns: ["static/**.*"],
-
-      // Allow clean patterns outside of process.cwd()
-      //
-      // requires dry option to be explicitly set
-      //
-      // default: false
-      dry:true,
-      dangerouslyAllowCleanPatternsOutsideProject: true
-    })
+   
+    
   ];
 
   // if (isProd) {

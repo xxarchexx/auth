@@ -16,6 +16,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/sessions"
+	"github.com/joho/godotenv"
 	"github.com/xxarchexx/auth/pages"
 	"github.com/xxarchexx/auth/users"
 	"gopkg.in/oauth2.v3"
@@ -51,6 +52,10 @@ var (
 func main() {
 	logins = make(map[uint]string)
 	auth := OauthServer{}
+
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
+	}
 
 	pages.LoadPage()
 	gob.Register(RetUri{})

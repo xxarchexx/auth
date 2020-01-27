@@ -5,5 +5,8 @@ auth
 node_modules/
 static/*
 dist/*
+.env
+auth_clients/.env
+database/.env
 
 

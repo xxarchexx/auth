@@ -1,16 +1,13 @@
 package auth_clients
 
 import (
-	"gopkg.in/oauth2.v3/models"
+	"github.com/xxarchexx/auth/models"
 )
 
-//ClientApps for registred
-type ClientApps struct {
-	Clients []models.Client
+func GetClients() {
+
 }
 
-var ClientApps clients = ClientApps{}
-
-func GetClients(clients *ClientApps) {
-	return clients
+func FillClients() ([]models.AuthApps, error) {
+	return fillClientsFromDb()
 }

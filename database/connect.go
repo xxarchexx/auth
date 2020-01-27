@@ -16,6 +16,7 @@ const (
 	dbname = "DBNAME"
 )
 
+var Db *sql.DB
 var db *sql.DB
 
 type Status int
@@ -50,6 +51,7 @@ func InitDb() {
 	if err != nil {
 		panic(err)
 	}
+	Db = db
 	fmt.Println("Successfully connected!")
 }
 
