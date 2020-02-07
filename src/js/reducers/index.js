@@ -21,7 +21,7 @@ var initial_state = {
 
 
 const rootReducer = combineReducers({
-    Auth: Auth
+    Users: Auth
 });
 
 export default rootReducer;

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { SIGNUP, SUGN_UP_SUCCESS, SIGN_UP_CLEAR } from "./action-types";
+import { SIGNUP, SUGN_UP_SUCCESS, SIGN_UP_CLEAR,LOGIN_FAILED , LOGIN_SUCESS } from "./action-types";
 
 export function signUp(userData) {
   return dispatch => {
@@ -40,18 +40,27 @@ export function userSignupRequest(userData) {
   };
 }
 
-function test(data) {
+function successLogin() {
   return {
-    type: "TEST",
-    data
+    type: LOGIN_SUCESS
+  };
+}
+
+function faildLogin() {
+  return {
+    type: LOGIN_FAILED
   };
 }
 
 export function signIn(login, password) {
   return dispatch => {
-    axios.post("/login", { login, password } ).then(e => {
-      console.log(e);
-      dispatch(test(e));
-    });
+    axios
+      .post("/login", { login, password })
+      .then(e => {
+        dispatch(successLogin());
+      })
+      .catch(e => {
+        dispatch(faildLogin());
+      });
   };
 }

@@ -4,8 +4,34 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/xxarchexx/auth/models"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type Status int
+
+const (
+	Added Status = iota
+	Faild
+	Exixsts
+)
+
+type user struct {
+	LoginType             int
+	ID                    uint
+	Name                  string
+	Login                 string
+	Username              string
+	Password              string
+	ApproveDate           time.Time
+	Email                 string
+	UserIDFromProvider    uint64
+	EmailFromProvider     string
+	TokenFromProvider     string
+	FirstNameFromProvider string
+	LastNameFromProvider  string
+	Expired               time.Duration
+}
 
 func compare(hash string, s string) error {
 	incoming := []byte(s)
@@ -19,28 +45,20 @@ func generate(s string) (string, error) {
 	return string(hashedBytes), err
 }
 
-type User struct {
-	ID          uint
-	Name        string
-	Login       string
-	Username    string
-	Password    string
-	ApproveDate time.Time
-	Email       string
-}
-
-func (usr *User) CreateUser() (err error) {
+func CreateUser(usr models.User) (err error) {
 	usr.Password, _ = generate(usr.Password)
-	usr.ID, err = addToDb(usr.Name, usr.Login, usr.Password, usr.Email)
+	var u user = user(usr)
+	u.ID, err = u.addToDb()
 	return err
 }
 
-func (usr *User) VerifyUser(login, password string) bool {
-	userid, respassword, err := verifyUserByPassword(login)
+func VerifyUser(usr models.User) bool {
+	userid, respassword, err := verifyUserByPassword(usr.Login)
 	if err != nil {
 		return false
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(respassword), []byte(password))
+
+	err = bcrypt.CompareHashAndPassword([]byte(respassword), []byte(usr.Password))
 	if err == nil {
 		usr.ID = userid
 		fmt.Print("GOOD")
@@ -50,10 +68,23 @@ func (usr *User) VerifyUser(login, password string) bool {
 	return false
 }
 
-type Status int
+func ProcessFromProviderUser(u *models.User) uint {
+	var _user user = user(*u)
+	exist := _user.checkUseExist()
+	if exist {
+		return 0
+	}
+	_user.createUserFromFacebok()
+	fmt.Print(exist)
+	return _user.ID
+}
 
-const (
-	Added Status = iota
-	Faild
-	Exixsts
-)
+func (user *user) checkUseExist() bool {
+	exist := user.dbCheckUseExist()
+
+	return exist
+}
+
+func (user *user) createUserFromFacebok() {
+	user.dbCreateUserFromFacebook()
+}

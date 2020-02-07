@@ -1,67 +1,51 @@
 package database
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
-	_ "strings"
+	"log"
+	"os"
 
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx"
+	"github.com/joho/godotenv"
 )
 
-const (
-	dbhost = "DBHOST"
-	dbport = "DBPORT"
-	dbuser = "DBUSER"
-	dbpass = "DBPASS"
-	dbname = "DBNAME"
-)
+// postgresql://
+// postgresql://localhost
+// postgresql://localhost:5432
+// postgresql://localhost/mydb
+// postgresql://user@localhost
+// postgresql://user:secret@localhost
+// postgresql://other@localhost/otherdb?connect_timeout=10&application_name=myapp
+// postgresql://localhost/mydb?user=other&password=secret
 
-var Db *sql.DB
-var db *sql.DB
+//Conn
+var Conn *pgx.Conn
 
-type Status int
-
-const (
-	Added Status = iota
-	Faild
-	Exixsts
-)
-
-const selectstring = "select count (1) from users where email = ?"
-
-func InitDb() {
-	config := dbConf()
-	var err error
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		config[dbhost], config[dbport],
-		config[dbuser], config[dbpass], config[dbname])
-
-	db, err = sql.Open("postgres", psqlInfo)
-	err = db.Ping()
-
-	if err != nil {
-		panic(err)
+func initEnv() {
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
 	}
-
-	if err != nil {
-		panic(err)
-	}
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
-	Db = db
-	fmt.Println("Successfully connected!")
 }
 
-func dbConf() map[string]string {
-	conf := make(map[string]string)
+//InitPgx
+func InitPgx() {
+	initEnv()
 
-	conf[dbhost] = "localhost"
-	conf[dbport] = "5432"
-	conf[dbuser] = "docker"
-	conf[dbpass] = "docker"
-	conf[dbname] = "auth_service"
-	return conf
+	host, _ := os.LookupEnv("dbhost")
+	port, _ := os.LookupEnv("dbport")
+	username, _ := os.LookupEnv("dbuser")
+	password, _ := os.LookupEnv("dbpass")
+	database, _ := os.LookupEnv("dbname")
+	var sqlconn string = fmt.Sprintf(`postgresql://%s:%s/%s?user=%s&password=%s`, host, port, database, username, password)
+	fmt.Printf(sqlconn)
+
+	connection, err := pgx.Connect(context.Background(), sqlconn)
+	if err != nil {
+		fmt.Print(err)
+		return
+	}
+	fmt.Printf("OKK")
+	Conn = connection
+
 }

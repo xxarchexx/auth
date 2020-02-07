@@ -7,6 +7,7 @@ require (
 	github.com/go-redis/redis v6.15.6+incompatible
 	github.com/go-session/session v3.1.2+incompatible
 	github.com/gorilla/sessions v1.2.0
+	github.com/jmoiron/sqlx v1.2.0 // indirect
 	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/json-iterator/go v1.1.7 // indirect
 	github.com/lib/pq v1.2.0
