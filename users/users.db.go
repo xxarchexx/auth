@@ -5,6 +5,7 @@ import (
 	_ "database/sql"
 	"fmt"
 	"log"
+
 	"github.com/xxarchexx/auth/database"
 )
 
@@ -34,44 +35,48 @@ func verifyUserByPassword(login string) (id uint, dbpasword string, err error) {
 }
 
 //Adduser with check if exists into temp table
-func (user *user) addToDb() (userid uint, err error) {
+func (user *user) addToDb() error {
 
 	//u := User{Name: name, login: login, email: email, password: password}
-	cntRow := 0
 
-	rows, err := database.Conn.Query(context.Background(), "Select count(1) from users where login = $1", user.Login)
+	rows, err := database.Conn.Query(context.Background(), "Select ID,LOGIN from users where email = $1", user.Email)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	for rows.Next() {
 		// var name string
-		if err := rows.Scan(&cntRow); err != nil {
+		if err := rows.Scan(&user.ID, &user.Login); err != nil {
 			// Check for a scan error.
 			// Query rows will be closed with defer.
 			log.Fatal(err)
 		}
-
-		log.Print(cntRow)
 	}
 
-	if cntRow > 0 {
-		return 0, err
+	if user.ID > 0 {
+		//just random choise mean if user already exists(had redistrated before) - 22
+		user.LoginType = 22
+		return nil
 	}
 
-	_, err = database.Conn.Exec(context.Background(), "Insert Into users (NAME,LOGIN,PASSWORD,EMAIL) values($1, $2, $3, $4)", user.Name, user.Login, user.Password, user.Email)
+	tx, err := database.Conn.Begin(context.Background())
+
+	_, err = tx.Exec(context.Background(), "Insert Into users (NAME,LOGIN,PASSWORD,EMAIL) values($1, $2, $3, $4)", user.Name, user.Login, user.Password, user.Email)
 
 	if err != nil {
-		return 0, err
+		tx.Rollback(context.Background())
+		return err
 	}
-	row := database.Conn.QueryRow(context.Background(), " select max(id) id from users ")
 
-	err = row.Scan(&userid)
+	err = tx.QueryRow(context.Background(), "select currval('users_id_seq')").Scan(&user.ID)
+
 	if err != nil {
-		return 0, err
+		tx.Rollback(context.Background())
+		return err
 	}
 
-	return
+	tx.Commit(context.Background())
+	return nil
 }
 
 func (user *user) dbCreateUserFromFacebook() (err error) {

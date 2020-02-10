@@ -11,8 +11,8 @@ const mapDispatchToProps = dispatch => {
 };
 
 const mapStateToProps = state =>  {
-  const { payload: loggined, success : success } = state.Users;
-  return {loggined, success}
+  const { success : success } = state.Users;
+  return {success}
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SignIn);

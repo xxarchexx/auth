@@ -292,7 +292,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		st.Save(r, w)
-		
+
 		return
 	}
 
@@ -329,15 +329,36 @@ func registrationHandle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users_module.CreateUser(u)
+	users_module.CreateUser(&u)
 
 	st.Values["LoggedInUserID"] = strconv.FormatUint(uint64(u.ID), 10)
 
 	logins[u.ID] = u.Login
 
 	st.Save(r, w)
-	w.Header().Set("Location", "/auth")
-	w.WriteHeader(http.StatusFound)
+
+	if u.LoginType == 22 {
+		type exist struct {
+			AccountExist bool `json:"accountExist"`
+		}
+
+		userExists := exist{AccountExist: true}
+		data, err := json.Marshal(&userExists)
+		if err != nil {
+			log.Fatal(err)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(data)
+		return
+	}
+
+	type success struct {
+		Success bool `json:"success"`
+	}
+	_success := success{Success: true}
+	data, _ := json.Marshal(&_success)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
 }
 
 func redirectHandle(w http.ResponseWriter, r *http.Request) {

@@ -1,5 +1,13 @@
 import axios from "axios";
-import { SIGNUP, SUGN_UP_SUCCESS, SIGN_UP_CLEAR,LOGIN_FAILED , LOGIN_SUCESS } from "./action-types";
+import {
+  SIGNUP,
+  SUGN_UP_SUCCESS,
+  SIGN_UP_CLEAR,
+  LOGIN_FAILED,
+  LOGIN_SUCESS,
+  SHOW_MESSAGE_FORM,
+  HIDE_MESSAGE_FORM
+} from "./action-types";
 
 export function signUp(userData) {
   return dispatch => {
@@ -13,7 +21,7 @@ export function ifUserExists(identifier) {
   };
 }
 
-const userSignup = data => {
+const userSignup = (data) => {
   return {
     payload: data,
     type: SUGN_UP_SUCCESS
@@ -33,11 +41,38 @@ export function userSignupRequest(userData) {
       .post("/registration", userData)
       .then(res => {
         dispatch(userSignup(res.data));
-      })
-      .then(() => {
-        dispatch(userClearData());
-      });
+        if (res.data.AccountExist == true) {
+          dispatch(showMessageForm());
+        }else {
+          dispatch(userSignup(res))
+        }
+      })     
   };
+}
+
+const _showMessageForm = () => {
+  const data = { open: true };
+
+  return {
+    payload: data,
+    type: SHOW_MESSAGE_FORM
+  };
+};
+
+const _hideMessageForm = () => {
+  const data = { open: false };
+  return {
+    payload: data,
+    type: HIDE_MESSAGE_FORM
+  };
+};
+
+export function showMessageForm() {
+  return dispatch => dispatch(_showMessageForm());
+}
+
+export function hideMessageForm() {
+  return dispatch => dispatch(_hideMessageForm());
 }
 
 function successLogin() {

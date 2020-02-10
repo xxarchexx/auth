@@ -61,10 +61,10 @@ export default class SignIn extends Component {
     return hasError;
   };
 
+
   facebookLogin = () => {
     console.log("facebook login");
-    axios.get("/facebooklogin").then(res => {
-      console.log(res.data.Url);
+    axios.get("/facebooklogin").then(res => {     
       window.location.replace(res.data.Url);
     });
   };
@@ -79,7 +79,7 @@ export default class SignIn extends Component {
         email: {
           value: this.loginInput.value,
           error: true,
-          helperText: "Your login must be specified."
+          helperText: "Введите ваш логин"
         }
       });
       this.loginInput.focus();
@@ -96,15 +96,14 @@ export default class SignIn extends Component {
     }
 
     return (
-      <div>
-        <ResponsiveContainerGrid>
+      <div >
+        <ResponsiveContainerGrid style={{ justifyContent: "space-evently" }}>
           <Grid item xs={12} sm={6}>
             <ResponsiveCard>
               <form>
-                <CardHeader title="Sign in" subheader="to continue to TPWC" />
+                <CardHeader title="Войти" subheader="Спасибо что используйте наш сервис" />
                 <CardContent>
-                  <TextField
-                    label="Enter your username(login)"
+                  <TextField                  
                     name="login"
                     fullWidth
                     autoFocus
@@ -113,8 +112,7 @@ export default class SignIn extends Component {
                     error={this.state.errors.login}
                     helperText={this.data.loginHelper}
                   />
-                  <TextField
-                    label="Enter your password"
+                  <TextField                    
                     name="password"
                     fullWidth
                     required
@@ -124,7 +122,7 @@ export default class SignIn extends Component {
                     inputRef={input => (this.passwordInput = input)}
                   />
                 </CardContent>
-                <CardActions p={1} style={{ justifyContent: "space-between" }}>
+                <CardActions  style={{ justifyContent: "center" }}>
                   <Button variant="outlined">Forgot password</Button>
                   <Button
                      onClick={this.login.bind(this)}
@@ -132,12 +130,12 @@ export default class SignIn extends Component {
                     variant="contained"
                     color="primary"
                   >
-                    Sign in
+                   Войти
                   </Button>
 
                   <Link to="/signup">
                     <Button variant="contained" color="default">
-                      Sign Up
+                     Зарегестрироваться
                     </Button>
                   </Link>
                 </CardActions>

@@ -20,8 +20,8 @@ type user struct {
 	LoginType             int
 	ID                    uint
 	Name                  string
+	LastName              string
 	Login                 string
-	Username              string
 	Password              string
 	ApproveDate           time.Time
 	Email                 string
@@ -45,10 +45,16 @@ func generate(s string) (string, error) {
 	return string(hashedBytes), err
 }
 
-func CreateUser(usr models.User) (err error) {
+func CreateUser(usr *models.User) (err error) {
 	usr.Password, _ = generate(usr.Password)
-	var u user = user(usr)
-	u.ID, err = u.addToDb()
+	var u user = user(*usr)
+	err = u.addToDb()
+	if err == nil {
+		usr.ID = u.ID
+		usr.Login = u.Login
+		usr.LoginType = u.LoginType
+	}
+
 	return err
 }
 
