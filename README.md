@@ -1,5 +1,6 @@
 # Auth
-Auth server too raw version
+Auth server
+support facebook accounts
 
 ## writen in go with
 - oauth2.v3
@@ -9,4 +10,3 @@ Auth server too raw version
 
 
 
-consumer [apiserver](https://github.com/xxarchexx/apiserver)
