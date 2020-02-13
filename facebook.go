@@ -143,79 +143,9 @@ func handleFacebookCallback(w http.ResponseWriter, r *http.Request) {
 	st2, err := sessionStore.Get(r, "Token")
 	st2.Values["Auth"] = facebookUser
 
-	// ti, err := auth.createTokenFast(client, redirect_uri, "", string(facebookUser.ID), token.Expiry)
-	// //if ti.ClientID != nil {
-	// st.Values["ClientID"] = ti.ClientID
-	// //}
-	// //if ti.UserID != nil {
-	// st.Values["UserID"] = ti.UserID
-	// //	}
-
-	// //if ti.RedirectURI != nil {
-	// st.Values["RedirectURI"] = ti.RedirectURI
-	// //	}
-
-	// //if ti.Scope != nil {
-	// st.Values["Scope"] = ti.Scope
-	// //}
-	// //if ti.Code != nil {
-	// st.Values["Code"] = ti.Code
-	// st.AddFlash("IsFirst", true)
-	// //}
-
-	// //if ti.CodeCreateAt != nil {
-	// st.Values["CodeCreateAt"] = ti.CodeCreateAt
-	// //}
-
-	// //if ti.CodeCreateAt != nil {
-	// st.Values["CodeExpiresIn"] = ti.CodeExpiresIn
-	// //}
-
-	// //if ti.Access != nil {
-	// st.Values["Access"] = ti.Access
-	// //}
-
-	// //if ti.Refresh != nil {
-	// st.Values["Refresh"] = ti.Refresh
-	// //}
-
-	// //if ti.RefreshCreateAt != nil {
-	// st.Values["RefreshCreateAt"] = ti.RefreshCreateAt
-	// //}
-
-	// //if ti.RefreshExpiresIn != nil {
-	// st.Values["RefreshExpiresIn"] = ti.RefreshExpiresIn
-	// //}
-
-	// st.Values["State"] = state
-
-	// st.Save(r, w)
-	// var buf bytes.Buffer
-
-	// // v.Set("state", st.Values["state"].([]string)[0])
-
-	// if strings.Contains(redirect_uri, "?") {
-	// 	buf.WriteByte('&')
-	// } else {
-	// 	buf.WriteByte('?')
-	// }
-
-	// buf.WriteString(v.Encode())
-	// fmt.Print(redirect_uri)
-
-	// auth.Server.GetTokenData(ti)
-
-	// err = auth.token(w, auth.Server.GetTokenData(ti), nil)
-
-	// http.Redirect(w, r, buf.String(), http.StatusTemporaryRedirect)
-
-	// st2, _ := sessionStore.Get(r, "Token")
-	// data, ok := st2.Values["Auth"]
-
 	var req *server.AuthorizeRequest = &server.AuthorizeRequest{}
 	req.Scope = ""
 
-	//again create code
 	req.ResponseType = "code"
 
 	req.RedirectURI = redirect_uri
